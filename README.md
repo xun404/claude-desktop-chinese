@@ -18,7 +18,7 @@
 
 ### 方法一：AI Agent 自动化安装（推荐）
 
-请使用 AI agent 自动化安装，理论可支持所有版本的 Claude Desktop。
+将本项目交给 Claude Code 等 AI Agent，让它读取 `llms.txt` 后自动完成所有补丁步骤。无需手动操作，可自动适配不同版本的 Claude Desktop。
 
 ### 方法二：手动安装
 
