@@ -1,0 +1,131 @@
+# Claude Desktop 中文本地化 — AI 操作指南
+
+## 概述
+
+本项目为 Claude Mac 桌面应用提供完整的中文本地化补丁。你的任务是在 Claude 应用更新后，将翻译应用到新版本的文件中。
+
+## 应用资源路径
+
+```
+/Applications/Claude.app/Contents/Resources/
+```
+
+## 需要修补的目标文件
+
+### 1. Electron 原生界面翻译
+
+```
+Resources/zh-CN.json          (简体中文，约 355 个 key)
+Resources/zh-TW.json          (繁体中文，约 355 个 key)
+```
+
+- 直接用 `data/root-zh-CN.json` 和 `data/root-zh-TW.json` 的内容覆盖目标文件
+- 这些是 Electron 的 locale 文件，结构简单：`{"key": "翻译文本"}`
+
+### 2. macOS 系统菜单翻译
+
+```
+Resources/zh_CN.lproj/Localizable.strings
+Resources/zh_TW.lproj/Localizable.strings
+```
+
+- macOS 原生 `.strings` 格式：`"key" = "value";`
+- 用 `data/zh_CN.lproj_Localizable.strings` 和 `data/zh_TW.lproj_Localizable.strings` 的内容覆盖
+
+### 3. Web UI 翻译
+
+```
+Resources/ion-dist/i18n/zh-CN.json    (简体中文，约 13000 个 key)
+Resources/ion-dist/i18n/zh-TW.json    (繁体中文，约 13000 个 key)
+```
+
+- 对应英文源文件：`Resources/ion-dist/i18n/en-US.json`
+- 翻译数据在 `data/ion-dist-zh-CN.json` 和 `data/ion-dist-zh-TW.json`
+
+**重要：key 是 hash 值（如 `"V9Aktj8Q9x"`），每个版本可能变化。** 处理 key 变化的方法见下文。
+
+### 4. JS 语言显示名称（文件名含 hash，每版本不同）
+
+```
+Resources/ion-dist/assets/v1/index-*.js
+```
+
+- 文件名格式：`index-{hash}.js`，如 `index-nw6xXXcG.js`
+- 需要通过 glob 模式 `ion-dist/assets/v1/index-*.js` 查找实际文件名
+- 修改内容：将 `localName:n.formatters.getDisplayNames(t,SEn).of(t)` 替换为 `localName:{"zh-CN":"简体中文（中国大陆）","zh-TW":"繁体中文（中国台湾）"}[t]||n.formatters.getDisplayNames(t,SEn).of(t)`
+
+## 处理 key 变化
+
+i18n JSON 文件中的 key 是根据英文原文计算的 hash。版本更新时 key 可能改变。
+
+### 方法一：直接合并（推荐优先尝试）
+
+用 `data/ion-dist-zh-CN.json` 中的 key-value 对更新目标文件。仅更新目标中已存在的 key：
+
+```python
+import json
+with open('data/ion-dist-zh-CN.json') as f: patch = json.load(f)
+with open('Resources/ion-dist/i18n/zh-CN.json') as f: target = json.load(f)
+count = 0
+for k, v in patch.items():
+    if k in target:
+        target[k] = v
+        count += 1
+with open('Resources/ion-dist/i18n/zh-CN.json', 'w') as f:
+    json.dump(target, f, ensure_ascii=False, indent=2)
+print(f"Updated {count} keys")
+```
+
+如果更新数量显著少于上次（上次约 1200 条），说明 key 大量变化，需要使用方法二。
+
+### 方法二：通过英文原文重新匹配 key
+
+如果 key 变化较大，需要：
+1. 读取新版 `en-US.json` 建立 key→英文原文 映射
+2. 读取旧版 `data/ion-dist-zh-CN.json` 中的翻译
+3. 对比英文原文找出旧 key 对应的新 key
+4. 用新 key 将翻译写入目标文件
+
+**注意：** 旧版 `data/ion-dist-zh-CN.json` 中如果只有 key 和中文翻译，缺少英文原文，则此方法需要配合旧版 `en-US.json` 使用。
+
+如果项目中没有旧版 `en-US.json`，应该先保存当前版本的 `en-US.json` 到 `data/` 目录以备将来使用。
+
+## 翻译质量检查
+
+翻译完成后，应检查以下内容：
+
+### 不应出现的模式
+
+- 中英文混合（如 `"创建 with Claude"`、`"失败 to load"`）— 品牌名和技术术语除外
+- 英文后缀拼接（如 `"工具s"`、`"消息s"`、`"创建d"`）
+- 截断的翻译（如 HTML 标签未闭合、句子不完整）
+
+### 检查脚本
+
+```python
+import re
+with open('Resources/ion-dist/i18n/zh-CN.json') as f:
+    cn = json.load(f)
+# 查找可疑的英文片段
+pattern = re.compile(r'[\u4e00-\u9fff]\s+[a-z]{2,}|[a-z]{2,}\s+[\u4e00-\u9fff]')
+for k, v in cn.items():
+    if pattern.search(v):
+        print(f'{k}: {v[:100]}')
+```
+
+## 完整执行步骤
+
+1. **备份当前翻译数据** — 将当前 `zh-CN.json`/`zh-TW.json` 保存到 `data/` 目录
+2. **应用 Electron 原生翻译** — 覆盖 `Resources/zh-CN.json` 和 `Resources/zh-TW.json`
+3. **应用 macOS 系统菜单翻译** — 覆盖 `zh_CN.lproj/` 和 `zh_TW.lproj/` 的 `Localizable.strings`
+4. **应用 Web UI 翻译** — 合并翻译到 `ion-dist/i18n/zh-CN.json` 和 `zh-TW.json`
+5. **修补 JS 文件** — 查找 `index-*.js`，替换 localName 生成代码
+6. **验证** — 运行翻译质量检查，确认无遗漏
+7. **保存新版 en-US.json** — 保存到 `data/` 目录以备 key 变化时使用
+
+## 翻译术语对照表
+
+详见 README.md 中的"翻译规范"部分。核心规则：
+- 简体和繁体使用不同的术语（如"文件"vs"檔案"、"设置"vs"設定"）
+- 品牌/技术术语保持英文原样
+- ICU 语法和 HTML 标签保持原样不变
