@@ -14,7 +14,13 @@
 | `Resources/ion-dist/i18n/zh-TW.json` | Web UI 翻译（繁体中文） |
 | `Resources/ion-dist/assets/v1/index-*.js` | 语言显示名称 |
 
-## 快速使用
+## 安装与使用
+
+### 方法一：AI Agent 自动化安装（推荐）
+
+请使用 AI agent 自动化安装，理论可支持所有版本的 Claude Desktop。
+
+### 方法二：手动安装
 
 ```bash
 cd /Applications/Claude.app/Contents/Resources/claude-desktop-chinese
@@ -22,10 +28,6 @@ python3 scripts/apply.py
 ```
 
 然后重启 Claude 应用。
-
-## 安装方法
-
-请使用 AI agent 自动化安装，理论可支持所有版本的 Claude Desktop。
 
 ## 注意事项
 
