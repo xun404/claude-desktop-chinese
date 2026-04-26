@@ -23,6 +23,10 @@ python3 scripts/apply.py
 
 然后重启 Claude 应用。
 
+## 安装方法
+
+请使用 AI agent 自动化安装，理论可支持所有版本的 Claude Desktop。
+
 ## 注意事项
 
 - `ion-dist/assets/v1/index-*.js` 的文件名包含 hash，每个版本不同
