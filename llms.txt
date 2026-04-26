@@ -44,7 +44,7 @@ Resources/ion-dist/i18n/zh-TW.json    (繁体中文，约 13000 个 key)
 
 **重要：key 是 hash 值（如 `"V9Aktj8Q9x"`），每个版本可能变化。** 处理 key 变化的方法见下文。
 
-### 4. JS 语言显示名称（文件名含 hash，每版本不同）
+### 4. JS 语言白名单（文件名含 hash，每版本不同）
 
 ```
 Resources/ion-dist/assets/v1/index-*.js
@@ -52,7 +52,22 @@ Resources/ion-dist/assets/v1/index-*.js
 
 - 文件名格式：`index-{hash}.js`，如 `index-nw6xXXcG.js`
 - 需要通过 glob 模式 `ion-dist/assets/v1/index-*.js` 查找实际文件名
+
+**关键：语言白名单。** JS 中有硬编码数组控制语言列表：
+
+```
+["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT","hi-IN","pt-BR","id-ID"]
+```
+
+- 这就是 Settings > Language 中可选语言的来源
+- 必须在数组末尾添加 `"zh-CN","zh-TW"`
+- 替换为：`["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT","hi-IN","pt-BR","id-ID","zh-CN","zh-TW"]`
+- 注意：此数组在同一文件中出现 3 次（变量赋值、locale 校验、语言选择器），应全部替换
+
+### 5. JS 语言显示名称（同一 index-*.js 文件）
+
 - 修改内容：将 `localName:n.formatters.getDisplayNames(t,SEn).of(t)` 替换为 `localName:{"zh-CN":"简体中文（中国大陆）","zh-TW":"繁体中文（中国台湾）"}[t]||n.formatters.getDisplayNames(t,SEn).of(t)`
+- 此补丁使语言列表中中文选项显示中文名称
 
 ## 处理 key 变化
 
@@ -116,12 +131,13 @@ for k, v in cn.items():
 ## 完整执行步骤
 
 1. **备份当前翻译数据** — 将当前 `zh-CN.json`/`zh-TW.json` 保存到 `data/` 目录
-2. **应用 Electron 原生翻译** — 覆盖 `Resources/zh-CN.json` 和 `Resources/zh-TW.json`
-3. **应用 macOS 系统菜单翻译** — 覆盖 `zh_CN.lproj/` 和 `zh_TW.lproj/` 的 `Localizable.strings`
-4. **应用 Web UI 翻译** — 合并翻译到 `ion-dist/i18n/zh-CN.json` 和 `zh-TW.json`
-5. **修补 JS 文件** — 查找 `index-*.js`，替换 localName 生成代码
-6. **验证** — 运行翻译质量检查，确认无遗漏
-7. **保存新版 en-US.json** — 保存到 `data/` 目录以备 key 变化时使用
+2. **应用 Electron 原生翻译** — 用 `data/root-zh-CN.json` 和 `data/root-zh-TW.json` 的内容创建/覆盖 `Resources/zh-CN.json` 和 `Resources/zh-TW.json`
+3. **应用 macOS 系统菜单翻译** — 用 `data/zh_CN.lproj_Localizable.strings` 和 `data/zh_TW.lproj_Localizable.strings` 创建/覆盖 `zh_CN.lproj/` 和 `zh_TW.lproj/` 的 `Localizable.strings`
+4. **应用 Web UI 翻译** — 以 `en-US.json` 为基础创建 `zh-CN.json`/`zh-TW.json`，用 `data/ion-dist-zh-CN.json` 的翻译覆盖对应值。如果目标文件已存在则合并更新
+5. **修补 JS 语言白名单** — 查找 `index-*.js`，将语言白名单数组添加 `"zh-CN","zh-TW"`（**必须，否则设置中无中文选项**）
+6. **修补 JS 语言显示名称** — 在同一文件中替换 localName 生成代码
+7. **验证** — 运行翻译质量检查，确认无遗漏
+8. **保存新版 en-US.json** — 保存到 `data/` 目录以备 key 变化时使用
 
 ## 翻译术语对照表
 
