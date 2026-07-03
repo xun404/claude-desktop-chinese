@@ -12,26 +12,38 @@
 | `Resources/zh_TW.lproj/Localizable.strings` | macOS 系统菜单（繁体中文） |
 | `Resources/ion-dist/i18n/zh-CN.json` | Web UI 翻译（简体中文） |
 | `Resources/ion-dist/i18n/zh-TW.json` | Web UI 翻译（繁体中文） |
-| `Resources/ion-dist/assets/v1/index-*.js` | 语言显示名称 |
+| `Resources/ion-dist/i18n/dynamic/zh-CN.json` | 动态加载翻译（简体中文） |
+| `Resources/ion-dist/i18n/dynamic/zh-TW.json` | 动态加载翻译（繁体中文） |
+| `Resources/ion-dist/assets/v1/index-*.js` | 语言选择器显示名称 |
+| `Resources/ion-dist/assets/v1/c4b350ac1-*.js` | 语言白名单列表 |
 
 ## 安装与使用
 
 ### 方法一：AI Agent 自动化安装（推荐）
 
-将本项目交给 Claude Code 等 AI Agent，让它读取 `llms.txt` 后自动完成所有补丁步骤。无需手动操作，可自动适配不同版本的 Claude Desktop。
+将本项目交给 AI Agent，让它读取 `llms.txt` 后自动完成所有补丁步骤。
 
 ### 方法二：手动安装
 
 ```bash
-cd /Applications/Claude.app/Contents/Resources/claude-desktop-chinese
 python3 scripts/apply.py
 ```
 
-然后重启 Claude 应用。
+默认路径为 `/Applications/Claude.app/Contents/Resources`，可通过参数指定。
+
+### macOS 26+ SIP 保护处理
+
+macOS 26+ 对 `/Applications/` 下的 app bundle 启用了强 SIP 保护，无法直接写入。脚本会自动检测并采用以下策略：
+
+1. 将 app 复制到 `/tmp/Claude_Backup.app`
+2. 在临时副本上应用补丁
+3. 用管理员权限替换原 app（需输入密码）
+
+如果替换失败，脚本会将补丁后的 app 安装到 `~/Applications/Claude.app`。
 
 ## 注意事项
 
-- `ion-dist/assets/v1/index-*.js` 的文件名包含 hash，每个版本不同
+- `ion-dist/assets/v1/index-*.js` 和 `c4b350ac1-*.js` 文件名包含 hash，每个版本不同
 - i18n 的 key 是 hash 值，可能随版本更新而变化
 - 翻译数据以 `data/` 目录中的 JSON 文件为准
 - `apply.py` 仅更新目标文件中已存在的 key，不会添加新 key
@@ -46,12 +58,13 @@ claude-desktop-chinese/
 ├── data/
 │   ├── root-zh-CN.json   # Electron 原生界面翻译
 │   ├── root-zh-TW.json
-│   ├── ion-dist-zh-CN.json  # Web UI 翻译
+│   ├── ion-dist-zh-CN.json  # Web UI 翻译（旧版 key）
 │   ├── ion-dist-zh-TW.json
 │   ├── ion-dist-zh-CN.overrides.json
 │   ├── ion-dist-zh-TW.overrides.json
 │   ├── zh_CN.lproj_Localizable.strings  # macOS 系统菜单
-│   └── zh_TW.lproj_Localizable.strings
+│   ├── zh_TW.lproj_Localizable.strings
+│   └── en-US.json         # 当前版本英文原文（用于 key 匹配）
 └── scripts/
     └── apply.py           # 补丁应用脚本
 ```

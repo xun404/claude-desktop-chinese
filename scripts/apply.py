@@ -6,6 +6,11 @@ Claude Desktop 中文本地化补丁应用脚本
   python3 apply.py [Resources路径]
 
 默认 Resources 路径: /Applications/Claude.app/Contents/Resources
+
+如果需要处理 SIP 保护（macOS 26+），先手动复制 app 到临时目录再运行：
+  cp -R /Applications/Claude.app /tmp/Claude_Backup.app
+  python3 apply.py /tmp/Claude_Backup.app/Contents/Resources
+  # 然后用管理员权限替换回 /Applications
 """
 
 import json
@@ -64,10 +69,8 @@ def create_i18n_from_en(resources_dir, lang, patch_data):
     target_path = os.path.join(resources_dir, "ion-dist", "i18n", f"{lang}.json")
 
     if os.path.exists(target_path):
-        # 目标已存在，直接合并
         return apply_json_patch(target_path, patch_data)
 
-    # 目标不存在，基于 en-US 创建
     if not os.path.exists(en_path):
         print(f"  跳过 (en-US.json 不存在): {en_path}")
         return 0
@@ -120,48 +123,85 @@ def apply_lproj_patch(target_path, patch_path):
 
 
 def find_index_js(resources_dir):
-    """查找主 JS 文件（文件名包含 hash，每个版本不同）"""
+    """查找 index-*.js 文件（文件名包含 hash，每个版本不同）"""
     pattern = os.path.join(resources_dir, "ion-dist", "assets", "v1", "index-*.js")
     matches = glob.glob(pattern)
-    if matches:
-        return matches[0]
-    return None
+    return matches[0] if matches else None
 
 
-def apply_js_patches(js_path):
-    """在 JS 文件中应用所有补丁（语言白名单 + 显示名称）"""
+def find_vendor_locale_js(resources_dir):
+    """查找 vendor locale 文件 c4b350ac1-*.js（文件名包含 hash）"""
+    pattern = os.path.join(resources_dir, "ion-dist", "assets", "v1", "c4b350ac1-*.js")
+    matches = glob.glob(pattern)
+    return matches[0] if matches else None
+
+
+def apply_js_whitelist_patch(resources_dir):
+    """在 vendor locale JS 文件中修补语言白名单"""
+    js_path = find_vendor_locale_js(resources_dir)
     if not js_path or not os.path.exists(js_path):
-        print("  跳过 (JS 文件未找到)")
+        print("  跳过 (vendor locale JS 文件未找到)")
         return
 
     with open(js_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    changed = False
-
-    # 补丁 1: 语言白名单 — 添加 zh-CN 和 zh-TW
     old_whitelist = '["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT","hi-IN","pt-BR","id-ID"]'
     new_whitelist = '["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT","hi-IN","pt-BR","id-ID","zh-CN","zh-TW"]'
+
     if old_whitelist in content:
         content = content.replace(old_whitelist, new_whitelist)
-        print("  已应用语言白名单补丁")
-        changed = True
+        with open(js_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"  已应用语言白名单补丁 ({os.path.basename(js_path)})")
     else:
         print("  跳过白名单 (模式未匹配，可能已补丁或版本变更)")
 
-    # 补丁 2: localName 显示名称
-    old_pattern = "localName:n.formatters.getDisplayNames(t,SEn).of(t)"
-    if old_pattern in content:
-        new_code = 'localName:{"zh-CN":"简体中文（中国大陆）","zh-TW":"繁体中文（中国台湾）"}[t]||n.formatters.getDisplayNames(t,SEn).of(t)'
-        content = content.replace(old_pattern, new_code)
-        print("  已应用语言显示名称补丁")
-        changed = True
-    else:
-        print("  跳过显示名称 (模式未匹配，可能已补丁或版本变更)")
 
-    if changed:
-        with open(js_path, "w", encoding="utf-8") as f:
-            f.write(content)
+def apply_js_localname_patch(resources_dir):
+    """在 index-*.js 中修补语言显示名称"""
+    js_path = find_index_js(resources_dir)
+    if not js_path or not os.path.exists(js_path):
+        print("  跳过 (index JS 文件未找到)")
+        return
+
+    with open(js_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    patterns = [
+        # 新版 Vite 构建
+        ('localName:s.formatters.getDisplayNames(t,gNt).of(t)',
+         'localName:{"zh-CN":"简体中文（中国大陆）","zh-TW":"繁体中文（中国台湾）"}[t]||s.formatters.getDisplayNames(t,gNt).of(t)'),
+        # 旧版模式（兼容）
+        ('localName:n.formatters.getDisplayNames(t,SEn).of(t)',
+         'localName:{"zh-CN":"简体中文（中国大陆）","zh-TW":"繁体中文（中国台湾）"}[t]||n.formatters.getDisplayNames(t,SEn).of(t)'),
+    ]
+
+    patched = False
+    for old_pattern, new_code in patterns:
+        if old_pattern in content:
+            content = content.replace(old_pattern, new_code)
+            patched = True
+            print(f"  已应用语言显示名称补丁 ({os.path.basename(js_path)})")
+            break
+
+    if not patched:
+        print("  跳过显示名称 (模式未匹配，可能已补丁或版本变更)")
+        return
+
+    with open(js_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+def copy_i18n_to_dynamic(resources_dir):
+    """将 zh-CN/zh-TW 复制到 dynamic 目录"""
+    dynamic_dir = os.path.join(resources_dir, "ion-dist", "i18n", "dynamic")
+    for lang in ["zh-CN", "zh-TW"]:
+        src = os.path.join(resources_dir, "ion-dist", "i18n", f"{lang}.json")
+        dst = os.path.join(dynamic_dir, f"{lang}.json")
+        if os.path.exists(src):
+            shutil.copy2(src, dst)
+            print(f"  dynamic/{lang}.json: 已复制")
 
 
 def main():
@@ -169,7 +209,7 @@ def main():
     print(f"Resources 目录: {resources_dir}")
     print()
 
-    # 1. Root level JSON — 直接覆盖（文件可能不存在，需要创建）
+    # 1. Root level JSON
     print("=== 修补 Root level JSON ===")
     for lang in ["zh-CN", "zh-TW"]:
         patch_file = os.path.join(DATA_DIR, f"root-{lang}.json")
@@ -180,7 +220,7 @@ def main():
                 patch = json.load(f)
             print(f"  {lang}.json: 写入 {len(patch)} 条")
 
-    # 2. lproj Localizable.strings — 直接覆盖
+    # 2. lproj Localizable.strings
     print("\n=== 修补 lproj Localizable.strings ===")
     lproj_map = {
         "zh_CN": os.path.join(DATA_DIR, "zh_CN.lproj_Localizable.strings"),
@@ -193,7 +233,7 @@ def main():
             shutil.copy2(patch_file, target_file)
             print(f"  {locale}.lproj/Localizable.strings: 已覆盖")
 
-    # 3. ion-dist i18n JSON — 基于当前 en-US 创建，应用翻译
+    # 3. ion-dist i18n JSON
     print("\n=== 修补 ion-dist/i18n JSON ===")
     for lang in ["zh-CN", "zh-TW"]:
         patch_file = os.path.join(DATA_DIR, f"ion-dist-{lang}.json")
@@ -204,18 +244,22 @@ def main():
             target_file = os.path.join(resources_dir, "ion-dist", "i18n", f"{lang}.json")
             if os.path.exists(target_file):
                 print(f"  ion-dist/i18n/{lang}.json: 更新 {count} 条")
-            # 也复制 overrides 文件
             overrides_src = os.path.join(DATA_DIR, f"ion-dist-{lang}.overrides.json")
             overrides_dst = os.path.join(resources_dir, "ion-dist", "i18n", f"{lang}.overrides.json")
             if os.path.exists(overrides_src):
                 shutil.copy2(overrides_src, overrides_dst)
 
-    # 4. JS 补丁（语言白名单 + 显示名称）
-    print("\n=== 修补 JS 文件 ===")
-    js_path = find_index_js(resources_dir)
-    js_name = os.path.basename(js_path) if js_path else "未找到"
-    print(f"  目标文件: {js_name}")
-    apply_js_patches(js_path)
+    # 4. 复制到 dynamic 目录
+    print("\n=== 复制到 dynamic 目录 ===")
+    copy_i18n_to_dynamic(resources_dir)
+
+    # 5. JS 语言白名单补丁 (c4b350ac1-*.js)
+    print("\n=== 修补 JS 语言白名单 ===")
+    apply_js_whitelist_patch(resources_dir)
+
+    # 6. JS 语言显示名称补丁 (index-*.js)
+    print("\n=== 修补 JS 语言显示名称 ===")
+    apply_js_localname_patch(resources_dir)
 
     print("\n完成！请重启 Claude 应用以使更改生效。")
 
