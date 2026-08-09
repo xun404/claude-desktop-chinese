@@ -33,6 +33,22 @@ codesign --verify --deep --strict /tmp/Claude_Backup.app
 
 否则启动时会提示「已损坏，无法打开」。已启动过的 app 在 `~/Library/Preferences` 有记录，重新签名后仍可正常启动。
 
+**必须保留 entitlements（否则功能失效）：** 重签名若不带 `--entitlements`，会丢失应用的虚拟化权限，导致 Cowork 报「Claude 的安装似乎已损坏」（`virtualization_entitlement_missing`）。使用 `scripts/entitlements/` 中的 plist 按序签名（顺序不能错）：
+
+```bash
+# 1. 整体深签（无 entitlements）
+codesign --force --deep -s - /tmp/Claude_Backup.app
+# 2. 各 helper 用自己的 entitlements（先签嵌套）
+codesign --force --deep -s - --entitlements scripts/entitlements/helper-default.xml "/tmp/Claude_Backup.app/Contents/Frameworks/Claude Helper.app"
+codesign --force --deep -s - --entitlements scripts/entitlements/helper-renderer.xml "/tmp/Claude_Backup.app/Contents/Frameworks/Claude Helper (Renderer).app"
+codesign --force --deep -s - --entitlements scripts/entitlements/helper-gpu.xml "/tmp/Claude_Backup.app/Contents/Frameworks/Claude Helper (GPU).app"
+codesign --force --deep -s - --entitlements scripts/entitlements/helper-plugin.xml "/tmp/Claude_Backup.app/Contents/Frameworks/Claude Helper (Plugin).app"
+# 3. 主二进制最后签（重建 seal），用精简版 entitlements
+codesign --force -s - --entitlements scripts/entitlements/main-adhoc.xml "/tmp/Claude_Backup.app/Contents/MacOS/Claude"
+```
+
+**注意：** ad-hoc 签名不能带 `com.apple.application-identifier`/`com.apple.developer.team-identifier`/`keychain-access-groups`（会导致启动失败，launchd 错误 163），`main-adhoc.xml` 已移除这三项；若用开发者证书签名则可补回。签名顺序：先嵌套后主二进制，否则 `codesign --verify` 报 `nested code is modified or invalid`。
+
 ### 备选策略
 
 如果 SIP 完全阻止替换（即使 root 也无法写入），将补丁后的 app 安装到 `~/Applications/Claude.app`：
