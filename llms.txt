@@ -146,20 +146,35 @@ x1="en-US",S1=["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT",
 
 模型的思考强度（Effort/工作量）与 1M 上下文变体由本地 edge-api bootstrap 的 `model_selector_config` 驱动。生成函数 `sd()`/`Hu()` 只对内置目录中的 Claude 模型有元数据，网关模型（deepseek/glm/kimi 等）缺失。
 
-本项目使用 **https://models.dev/models.json**（主流模型配置：`limit.context` 上下文长度 + `reasoning` 思考能力）做映射，**每次执行汉化时自动更新**：
+本项目使用 **https://models.dev/api.json** 的 **opencodezen 节点**（即 `opencode-go`，用户 zen 网关；回退链 opencode-zen → opencode-go → opencode）做映射，**每次执行汉化时自动更新**：
 
-- `scripts/generate-model-map.py`：下载 models.dev → 生成 `data/model-map.json`（`{模型ID: {ctx, reasoning}}`，含小写别名）
-- `scripts/patch-model-map.py`：将映射嵌入 `app.asar` 的 `index.chunk-w2M3Ll-M.js`：
+- `scripts/generate-model-map.py`：下载 api.json → 缓存到 `data/models-dev-api.json`（网络失败时用缓存）→ 生成 `data/model-map.json`（`{模型ID: {ctx, reasoning, effort: [...]}}`）
+- `scripts/patch-model-map.py`：将映射嵌入 `app.asar`：
   - 注入 `var MdlMap=JSON.parse("...")`（**变量名不能叫 Mv**，chunk 内已有 yaml 库的 `loadAll:Mv` 会覆盖）
-  - `sd()`：`ctx >= 1e6` 的模型**只生成 `[1m]` 变体，不显示基础条目**（`return !s||e.restricted?[t]:[{...t,id:\`${e.id}[1m]\`,...}]`）
-  - `Hu()`：无目录元数据时按 `MdlMap[id].reasoning` 回退 `ju`（完整 effort 档位），非推理模型无思考强度
-- apply.py 第 0 步自动执行上述两步（网络失败则沿用旧映射）
+  - `sd()`：`ctx >= 1e6` 的模型**只生成 `[1m]` 变体，不显示基础条目**
+  - `Hu()`：有 `effort` 档位 → 精确匹配（如 deepseek-v4-flash→[low,high,max]、kimi-k3→[max]）；无档位但 reasoning → 回退 `ju`（完整 5 档）；非推理 → 无
+  - `index.pre.js` 注入 **safeStorage 补丁**（见下节）
+- 网关换新模型时无需重跑汉化：映射已缓存在 app.asar 的 `MdlMap` 中，按模型 ID 直接匹配
+
+### 7c. 钥匙链弹窗消除（safeStorage 补丁）
+
+ad-hoc 重签名后 Electron safeStorage 访问钥匙链条目（`"Claude Safe Storage"`）会因签名不匹配**每次启动弹「请求钥匙链」**，且每次重签名都会再弹。应用无相关配置开关。
+
+补丁：`index.pre.js` 中 `let E=require("electron");E=u(E);` 之后注入：
+
+```js
+E.safeStorage.isEncryptionAvailable=()=>!1;
+E.safeStorage.encryptString=e=>Buffer.from("\x00PLAIN:"+e,"utf8");
+E.safeStorage.decryptString=e=>{let t=Buffer.from(e).toString("utf8");return t.startsWith("\x00PLAIN:")?t.slice(7):(()=>{throw new Error("safeStorage disabled")})()};
+```
+
+效果：永不触碰钥匙链 → **再无弹窗**；敏感字段走应用内置明文回退（provider 配置等正常保存）；旧加密数据解密失败自动丢弃（需重新录入一次）。该补丁由 `patch-model-map.py` 自动应用（幂等）。
 
 注意：该补丁与「7. 网关模型校验」一样需要重打 asar 并重新签名（含 entitlements，见上）。
 
 ### 8. 重签名后的钥匙链授权
 
-用 ad-hoc 签名（`codesign -s -`）替换 app 后，Electron safeStorage 的钥匙链条目（`"Claude Safe Storage"` / `"Claude Key"`）ACL 与新的代码签名不匹配，每次启动弹「请求钥匙链」且加密配置（Gateway API key 等）无法解密。解决：首次弹窗时点「始终允许」一次即可永久放行（加密数据不受影响）。
+用 ad-hoc 签名（`codesign -s -`）替换 app 后，Electron safeStorage 的钥匙链条目（`"Claude Safe Storage"` / `"Claude Key"`）ACL 与新的代码签名不匹配，每次启动弹「请求钥匙链」且加密配置（Gateway API key 等）无法解密。**本项目已通过 safeStorage 补丁彻底禁用钥匙链访问（见 7c），无需再点「始终允许」**；若未应用该补丁，可在弹窗点「始终允许」一次放行（加密数据不受影响）。
 
 ### 6. JS 语言显示名称（index-*.js 文件）
 

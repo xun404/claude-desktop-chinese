@@ -26,6 +26,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "..", "data")
 MODEL_MAP = os.path.join(DATA_DIR, "model-map.json")
 CHUNK_REL = os.path.join(".vite", "build", "index.chunk-w2M3Ll-M.js")
+PRE_REL = os.path.join(".vite", "build", "index.pre.js")
 UNPACK_GLOB = "{**/node_modules/@ant/**,**/node_modules/node-pty/**,**/resources/github-mcp/**,**/resources/office365-mcp/**}"
 
 
@@ -51,9 +52,21 @@ def build_map_literal():
     return 'var MdlMap=JSON.parse("' + esc + '");'
 
 
-def patch_chunk(chunk_path):
-    c = open(chunk_path, "r", encoding="utf-8").read()
+def patch_chunk(chunk_path, pre_path):
     changed = []
+
+    # 0. safeStorage 补丁：永不触碰钥匙链（消灭「请求钥匙链」弹窗）
+    pre = open(pre_path, "r", encoding="utf-8").read()
+    anchor = 'let E=require("electron");E=u(E);'
+    if anchor in pre and "safeStorage.isEncryptionAvailable=()=>!1" not in pre:
+        patch = anchor + 'E.safeStorage.isEncryptionAvailable=()=>!1;E.safeStorage.encryptString=e=>Buffer.from("\\x00PLAIN:"+e,"utf8");E.safeStorage.decryptString=e=>{let t=Buffer.from(e).toString("utf8");return t.startsWith("\\x00PLAIN:")?t.slice(7):(()=>{throw new Error("safeStorage disabled")})()};'
+        pre = pre.replace(anchor, patch, 1)
+        open(pre_path, "w", encoding="utf-8").write(pre)
+        changed.append("补丁 safeStorage: 禁用钥匙链（明文存储回退）")
+    elif "safeStorage.isEncryptionAvailable=()=>!1" in pre:
+        changed.append("safeStorage 已补丁")
+
+    c = open(chunk_path, "r", encoding="utf-8").read()
 
     # 1. 注入/更新 MdlMap
     m = re.search(r'var MdlMap=JSON\.parse\("[^"]*"\);', c)
@@ -84,18 +97,22 @@ def patch_chunk(chunk_path):
     else:
         print("  跳过 sd(): 模式未匹配（版本可能已变更）")
 
-    # 3. Hu(): 思考强度按 reasoning
+    # 3. Hu(): 思考强度按映射 effort 档位匹配
     if "MdlMap[e.toLowerCase()]" not in c:
+        new_hu_tail = 'if(!n){let m=MdlMap[e.toLowerCase()];if(m){if(m.effort&&m.effort.length){let f=m.effort;n={effortLevels:f,recommended:f[Math.floor((f.length-1)/2)]}}else if(m.reasoning){n=ju}}}'
         old_hu = 'function Hu(e){let t=ou(e.toLowerCase()),n=Mu[t]??(Nu.test(t)?ju:void 0);if(!n)n=ju;'
         old_hu_orig = 'function Hu(e){let t=ou(e.toLowerCase()),n=Mu[t]??(Nu.test(t)?ju:void 0);if(!n)return;'
+        old_hu_map = 'function Hu(e){let t=ou(e.toLowerCase()),n=Mu[t]??(Nu.test(t)?ju:void 0);if(!n){let m=MdlMap[e.toLowerCase()];n=m?m.reasoning?ju:void 0:void 0}'
+        prefix = 'function Hu(e){let t=ou(e.toLowerCase()),n=Mu[t]??(Nu.test(t)?ju:void 0);'
         if old_hu in c:
-            new_hu = 'function Hu(e){let t=ou(e.toLowerCase()),n=Mu[t]??(Nu.test(t)?ju:void 0);if(!n){let m=MdlMap[e.toLowerCase()];n=m?m.reasoning?ju:void 0:void 0}if(!n)return;'
-            c = c.replace(old_hu, new_hu, 1)
-            changed.append("补丁 Hu(): 思考强度按 reasoning")
+            c = c.replace(old_hu, prefix + new_hu_tail + 'if(!n)return;', 1)
+            changed.append("补丁 Hu(): 思考强度按 effort 档位")
         elif old_hu_orig in c:
-            new_hu = 'function Hu(e){let t=ou(e.toLowerCase()),n=Mu[t]??(Nu.test(t)?ju:void 0);if(!n){let m=MdlMap[e.toLowerCase()];n=m?m.reasoning?ju:void 0:void 0}if(!n)return;'
-            c = c.replace(old_hu_orig, new_hu, 1)
-            changed.append("补丁 Hu(): 思考强度按 reasoning（原始守卫版本）")
+            c = c.replace(old_hu_orig, prefix + new_hu_tail + 'if(!n)return;', 1)
+            changed.append("补丁 Hu(): 思考强度按 effort 档位（原始守卫版本）")
+        elif old_hu_map in c:
+            c = c.replace(old_hu_map, prefix + new_hu_tail, 1)
+            changed.append("升级 Hu(): 按 effort 档位匹配")
         else:
             print("  跳过 Hu(): 模式未匹配（版本可能已变更）")
     else:
@@ -122,11 +139,12 @@ def main():
     try:
         run_npx(["extract", asar_path, tmp])
         chunk_path = os.path.join(tmp, CHUNK_REL)
+        pre_path = os.path.join(tmp, PRE_REL)
         if not os.path.exists(chunk_path):
             print(f"跳过 (chunk 不存在): {CHUNK_REL}")
             return
         print("=== 修补模型映射 (app.asar) ===")
-        if patch_chunk(chunk_path):
+        if patch_chunk(chunk_path, pre_path):
             unpacked = asar_path + ".unpacked"
             if os.path.isdir(unpacked):
                 shutil.rmtree(unpacked)
