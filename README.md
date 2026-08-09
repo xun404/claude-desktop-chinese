@@ -1,4 +1,4 @@
-# Claude Desktop 中文本地化
+# Claude Desktop 中文本地化&Gateway原生适配主流API
 
 为 Claude Mac 桌面应用提供简体中文和繁体中文翻译，并附带模型映射与运行修复。
 
