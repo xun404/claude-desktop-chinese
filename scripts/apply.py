@@ -136,26 +136,33 @@ def find_vendor_locale_js(resources_dir):
     return matches[0] if matches else None
 
 
+def find_shared_locale_js(resources_dir):
+    """查找 shared-1-*.js（2026-08 版本起语言白名单移到此文件）"""
+    pattern = os.path.join(resources_dir, "ion-dist", "assets", "v1", "shared-1-*.js")
+    matches = glob.glob(pattern)
+    return matches[0] if matches else None
+
+
 def apply_js_whitelist_patch(resources_dir):
     """在 vendor locale JS 文件中修补语言白名单"""
-    js_path = find_vendor_locale_js(resources_dir)
-    if not js_path or not os.path.exists(js_path):
-        print("  跳过 (vendor locale JS 文件未找到)")
-        return
-
-    with open(js_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
+    targets = [find_vendor_locale_js(resources_dir), find_shared_locale_js(resources_dir)]
     old_whitelist = '["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT","hi-IN","pt-BR","id-ID"]'
     new_whitelist = '["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT","hi-IN","pt-BR","id-ID","zh-CN","zh-TW"]'
 
-    if old_whitelist in content:
-        content = content.replace(old_whitelist, new_whitelist)
-        with open(js_path, "w", encoding="utf-8") as f:
-            f.write(content)
-        print(f"  已应用语言白名单补丁 ({os.path.basename(js_path)})")
-    else:
-        print("  跳过白名单 (模式未匹配，可能已补丁或版本变更)")
+    for js_path in targets:
+        if not js_path or not os.path.exists(js_path):
+            continue
+        with open(js_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        if old_whitelist in content:
+            content = content.replace(old_whitelist, new_whitelist)
+            with open(js_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            print(f"  已应用语言白名单补丁 ({os.path.basename(js_path)})")
+            return
+
+    print("  跳过白名单 (模式未匹配，可能已补丁或版本变更)")
 
 
 def apply_js_localname_patch(resources_dir):

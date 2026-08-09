@@ -105,7 +105,7 @@ x1="en-US",S1=["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT",
 - `x1` 是默认语言（保持不变）
 - 替换为：`["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT","hi-IN","pt-BR","id-ID","zh-CN","zh-TW"]`
 
-**注意：** 2026-08 版本（v1.26832.0）起已改用目录扫描机制，主进程通过读取 `Resources/` 目录下的 `xx-XX.json` 文件自动发现可用语言，**不再需要 JS 白名单补丁**（`c4b350ac1-*.js` 也已被移除）。apply.py 对模式不匹配会安全跳过。
+**注意：** 2026-08 版本（v1.26832.0）起语言白名单已从 `c4b350ac1-*.js` 移入 `shared-1-*.js`（变量名为 `J_`，数组形式不变），apply.py 会依次尝试两个位置。语言显示名称无需补丁（新版用 `Intl.DisplayNames` 自动显示中文名）。
 
 ### 6. JS 语言显示名称（index-*.js 文件）
 
