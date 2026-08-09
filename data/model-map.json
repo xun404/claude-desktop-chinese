@@ -1,0 +1,1250 @@
+{
+"MiniMax-M2": {
+"ctx": 196608,
+"reasoning": true
+},
+"MiniMax-M2.1": {
+"ctx": 204800,
+"reasoning": true
+},
+"MiniMax-M2.5": {
+"ctx": 204800,
+"reasoning": true
+},
+"MiniMax-M2.5-highspeed": {
+"ctx": 204800,
+"reasoning": true
+},
+"MiniMax-M2.7": {
+"ctx": 204800,
+"reasoning": true
+},
+"MiniMax-M2.7-highspeed": {
+"ctx": 204800,
+"reasoning": true
+},
+"MiniMax-M3": {
+"ctx": 512000,
+"reasoning": true
+},
+"allam-2-7b": {
+"ctx": 4096,
+"reasoning": false
+},
+"apertus-70b": {
+"ctx": 65536,
+"reasoning": false
+},
+"c4ai-aya-expanse-32b": {
+"ctx": 128000,
+"reasoning": false
+},
+"c4ai-aya-expanse-8b": {
+"ctx": 8000,
+"reasoning": false
+},
+"c4ai-aya-vision-32b": {
+"ctx": 16000,
+"reasoning": false
+},
+"c4ai-aya-vision-8b": {
+"ctx": 16000,
+"reasoning": false
+},
+"claude-3-5-haiku-20241022": {
+"ctx": 200000,
+"reasoning": false
+},
+"claude-3-5-sonnet-20241022": {
+"ctx": 200000,
+"reasoning": false
+},
+"claude-3-7-sonnet-20250219": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-3-haiku-20240307": {
+"ctx": 200000,
+"reasoning": false
+},
+"claude-fable-5": {
+"ctx": 1000000,
+"reasoning": true
+},
+"claude-haiku-4-5": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-haiku-4-5-20251001": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-opus-4-0": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-opus-4-1": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-opus-4-1-20250805": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-opus-4-20250514": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-opus-4-5": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-opus-4-5-20251101": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-opus-4-6": {
+"ctx": 1000000,
+"reasoning": true
+},
+"claude-opus-4-7": {
+"ctx": 1000000,
+"reasoning": true
+},
+"claude-opus-4-8": {
+"ctx": 1000000,
+"reasoning": true
+},
+"claude-opus-5": {
+"ctx": 1000000,
+"reasoning": true
+},
+"claude-sonnet-4-0": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-sonnet-4-20250514": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-sonnet-4-5": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-sonnet-4-5-20250929": {
+"ctx": 200000,
+"reasoning": true
+},
+"claude-sonnet-4-6": {
+"ctx": 1000000,
+"reasoning": true
+},
+"claude-sonnet-5": {
+"ctx": 1000000,
+"reasoning": true
+},
+"codestral-22b-v0.1": {
+"ctx": 32768,
+"reasoning": false
+},
+"codestral-latest": {
+"ctx": 256000,
+"reasoning": false
+},
+"command-a-03-2025": {
+"ctx": 256000,
+"reasoning": false
+},
+"command-a-plus-05-2026": {
+"ctx": 128000,
+"reasoning": true
+},
+"command-a-reasoning-08-2025": {
+"ctx": 256000,
+"reasoning": true
+},
+"command-a-translate-08-2025": {
+"ctx": 8000,
+"reasoning": false
+},
+"command-a-vision-07-2025": {
+"ctx": 128000,
+"reasoning": false
+},
+"command-r-08-2024": {
+"ctx": 128000,
+"reasoning": false
+},
+"command-r-plus-08-2024": {
+"ctx": 128000,
+"reasoning": false
+},
+"command-r7b-12-2024": {
+"ctx": 128000,
+"reasoning": false
+},
+"command-r7b-arabic-02-2025": {
+"ctx": 128000,
+"reasoning": false
+},
+"deep-research-max-preview-04-2026": {
+"ctx": 1048576,
+"reasoning": true
+},
+"deep-research-preview-04-2026": {
+"ctx": 1048576,
+"reasoning": true
+},
+"deepseek-chat": {
+"ctx": 1000000,
+"reasoning": false
+},
+"deepseek-ocr-2": {
+"ctx": 8192,
+"reasoning": false
+},
+"deepseek-r1": {
+"ctx": 128000,
+"reasoning": true
+},
+"deepseek-reasoner": {
+"ctx": 1000000,
+"reasoning": true
+},
+"deepseek-v3": {
+"ctx": 131072,
+"reasoning": false
+},
+"deepseek-v3.1": {
+"ctx": 131072,
+"reasoning": true
+},
+"deepseek-v3.2": {
+"ctx": 128000,
+"reasoning": true
+},
+"deepseek-v4-flash": {
+"ctx": 1000000,
+"reasoning": true
+},
+"deepseek-v4-flash-0731": {
+"ctx": 1000000,
+"reasoning": true
+},
+"deepseek-v4-pro": {
+"ctx": 1000000,
+"reasoning": true
+},
+"devstral-2512": {
+"ctx": 262144,
+"reasoning": false
+},
+"devstral-medium-2507": {
+"ctx": 128000,
+"reasoning": false
+},
+"devstral-medium-latest": {
+"ctx": 262144,
+"reasoning": false
+},
+"devstral-small-2507": {
+"ctx": 128000,
+"reasoning": false
+},
+"fugu": {
+"ctx": 1000000,
+"reasoning": true
+},
+"fugu-ultra": {
+"ctx": 1000000,
+"reasoning": true
+},
+"gemini-2.0-flash": {
+"ctx": 1048576,
+"reasoning": false
+},
+"gemini-2.0-flash-lite": {
+"ctx": 1048576,
+"reasoning": false
+},
+"gemini-2.5-computer-use-preview-10-2025": {
+"ctx": 128000,
+"reasoning": true
+},
+"gemini-2.5-flash": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-2.5-flash-image": {
+"ctx": 32768,
+"reasoning": true
+},
+"gemini-2.5-flash-lite": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-2.5-flash-tts": {
+"ctx": 32768,
+"reasoning": false
+},
+"gemini-2.5-pro": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-2.5-pro-tts": {
+"ctx": 32768,
+"reasoning": false
+},
+"gemini-3-flash-preview": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3-pro-image": {
+"ctx": 65536,
+"reasoning": true
+},
+"gemini-3-pro-image-preview": {
+"ctx": 65536,
+"reasoning": true
+},
+"gemini-3-pro-preview": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3.1-flash-image": {
+"ctx": 131072,
+"reasoning": true
+},
+"gemini-3.1-flash-image-preview": {
+"ctx": 65536,
+"reasoning": true
+},
+"gemini-3.1-flash-lite": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3.1-flash-lite-image": {
+"ctx": 65536,
+"reasoning": true
+},
+"gemini-3.1-flash-lite-preview": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3.1-flash-live-preview": {
+"ctx": 131072,
+"reasoning": true
+},
+"gemini-3.1-flash-tts-preview": {
+"ctx": 8192,
+"reasoning": false
+},
+"gemini-3.1-pro-preview": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3.1-pro-preview-customtools": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3.5-flash": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3.5-flash-lite": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-3.5-live-translate-preview": {
+"ctx": 131072,
+"reasoning": false
+},
+"gemini-3.6-flash": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-embedding-001": {
+"ctx": 2048,
+"reasoning": false
+},
+"gemini-embedding-2": {
+"ctx": 8192,
+"reasoning": false
+},
+"gemini-flash-latest": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-flash-lite-latest": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-omni-flash-preview": {
+"ctx": 1048576,
+"reasoning": true
+},
+"gemini-robotics-er-1.6-preview": {
+"ctx": 131072,
+"reasoning": true
+},
+"gemma-4-26b-a4b-it": {
+"ctx": 262144,
+"reasoning": true
+},
+"gemma-4-31b-it": {
+"ctx": 262144,
+"reasoning": true
+},
+"gemma-4-E2B-it": {
+"ctx": 131072,
+"reasoning": true
+},
+"gemma-4-E4B-it": {
+"ctx": 131072,
+"reasoning": true
+},
+"gemma-4-e2b-it": {
+"ctx": 131072,
+"reasoning": true
+},
+"gemma-4-e4b-it": {
+"ctx": 131072,
+"reasoning": true
+},
+"glm-4.5": {
+"ctx": 131072,
+"reasoning": true
+},
+"glm-4.5-air": {
+"ctx": 131072,
+"reasoning": true
+},
+"glm-4.5-flash": {
+"ctx": 131072,
+"reasoning": true
+},
+"glm-4.5v": {
+"ctx": 64000,
+"reasoning": true
+},
+"glm-4.6": {
+"ctx": 204800,
+"reasoning": true
+},
+"glm-4.6v": {
+"ctx": 128000,
+"reasoning": true
+},
+"glm-4.7": {
+"ctx": 204800,
+"reasoning": true
+},
+"glm-4.7-flash": {
+"ctx": 200000,
+"reasoning": true
+},
+"glm-4.7-flashx": {
+"ctx": 200000,
+"reasoning": true
+},
+"glm-5": {
+"ctx": 204800,
+"reasoning": true
+},
+"glm-5-turbo": {
+"ctx": 200000,
+"reasoning": true
+},
+"glm-5.1": {
+"ctx": 200000,
+"reasoning": true
+},
+"glm-5.2": {
+"ctx": 1000000,
+"reasoning": true
+},
+"glm-5v-turbo": {
+"ctx": 200000,
+"reasoning": true
+},
+"gpt-3.5-turbo": {
+"ctx": 16385,
+"reasoning": false
+},
+"gpt-4": {
+"ctx": 8192,
+"reasoning": false
+},
+"gpt-4-turbo": {
+"ctx": 128000,
+"reasoning": false
+},
+"gpt-4.1": {
+"ctx": 1047576,
+"reasoning": false
+},
+"gpt-4.1-mini": {
+"ctx": 1047576,
+"reasoning": false
+},
+"gpt-4.1-nano": {
+"ctx": 1047576,
+"reasoning": false
+},
+"gpt-4o": {
+"ctx": 128000,
+"reasoning": false
+},
+"gpt-4o-2024-05-13": {
+"ctx": 128000,
+"reasoning": false
+},
+"gpt-4o-2024-08-06": {
+"ctx": 128000,
+"reasoning": false
+},
+"gpt-4o-2024-11-20": {
+"ctx": 128000,
+"reasoning": false
+},
+"gpt-4o-mini": {
+"ctx": 128000,
+"reasoning": false
+},
+"gpt-5": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5-chat-latest": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5-codex": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5-mini": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5-nano": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5-pro": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.1": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.1-chat-latest": {
+"ctx": 128000,
+"reasoning": true
+},
+"gpt-5.1-codex": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.1-codex-max": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.1-codex-mini": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.2": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.2-chat-latest": {
+"ctx": 128000,
+"reasoning": true
+},
+"gpt-5.2-codex": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.2-pro": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.3-chat-latest": {
+"ctx": 128000,
+"reasoning": false
+},
+"gpt-5.3-codex": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.4": {
+"ctx": 1050000,
+"reasoning": true
+},
+"gpt-5.4-mini": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.4-nano": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.4-pro": {
+"ctx": 1050000,
+"reasoning": true
+},
+"gpt-5.5": {
+"ctx": 1050000,
+"reasoning": true
+},
+"gpt-5.5-instant": {
+"ctx": 400000,
+"reasoning": true
+},
+"gpt-5.5-pro": {
+"ctx": 1050000,
+"reasoning": true
+},
+"gpt-5.6-luna": {
+"ctx": 1050000,
+"reasoning": true
+},
+"gpt-5.6-sol": {
+"ctx": 1050000,
+"reasoning": true
+},
+"gpt-5.6-terra": {
+"ctx": 1050000,
+"reasoning": true
+},
+"gpt-image-1": {
+"ctx": 0,
+"reasoning": false
+},
+"gpt-image-1.5": {
+"ctx": 0,
+"reasoning": false
+},
+"gpt-image-2": {
+"ctx": 0,
+"reasoning": false
+},
+"gpt-oss-120b": {
+"ctx": 131072,
+"reasoning": true
+},
+"gpt-oss-20b": {
+"ctx": 131072,
+"reasoning": true
+},
+"gpt-oss-safeguard-120b": {
+"ctx": 131072,
+"reasoning": true
+},
+"gpt-realtime-2.1": {
+"ctx": 128000,
+"reasoning": true
+},
+"gpt-realtime-whisper": {
+"ctx": 0,
+"reasoning": false
+},
+"granite-4-h-small": {
+"ctx": 131072,
+"reasoning": false
+},
+"grok-4.1-fast": {
+"ctx": 2000000,
+"reasoning": false
+},
+"grok-4.20-0309-non-reasoning": {
+"ctx": 1000000,
+"reasoning": false
+},
+"grok-4.20-0309-reasoning": {
+"ctx": 1000000,
+"reasoning": true
+},
+"grok-4.3": {
+"ctx": 1000000,
+"reasoning": true
+},
+"grok-4.5": {
+"ctx": 500000,
+"reasoning": true
+},
+"grok-build-0.1": {
+"ctx": 256000,
+"reasoning": true
+},
+"grok-imagine-video-1.5": {
+"ctx": 1024,
+"reasoning": false
+},
+"hy3": {
+"ctx": 256000,
+"reasoning": true
+},
+"hy3-preview": {
+"ctx": 256000,
+"reasoning": true
+},
+"inkling": {
+"ctx": 1048576,
+"reasoning": true
+},
+"inkling-small": {
+"ctx": 1048576,
+"reasoning": true
+},
+"kimi-k2-thinking": {
+"ctx": 262144,
+"reasoning": true
+},
+"kimi-k2-thinking-turbo": {
+"ctx": 262144,
+"reasoning": true
+},
+"kimi-k2.5": {
+"ctx": 262144,
+"reasoning": true
+},
+"kimi-k2.6": {
+"ctx": 262144,
+"reasoning": true
+},
+"kimi-k2.7-code": {
+"ctx": 262144,
+"reasoning": true
+},
+"kimi-k2.7-code-highspeed": {
+"ctx": 262144,
+"reasoning": true
+},
+"kimi-k3": {
+"ctx": 1048576,
+"reasoning": true
+},
+"laguna-m.1": {
+"ctx": 262144,
+"reasoning": true
+},
+"laguna-s-2.1": {
+"ctx": 1048576,
+"reasoning": true
+},
+"laguna-xs-2.1": {
+"ctx": 262144,
+"reasoning": true
+},
+"laguna-xs.2": {
+"ctx": 262144,
+"reasoning": true
+},
+"llama-3.1-nemotron-70b-instruct": {
+"ctx": 128000,
+"reasoning": false
+},
+"llama-3.1-nemotron-safety-guard-8b-v3": {
+"ctx": 128000,
+"reasoning": false
+},
+"llama-3.1-nemotron-ultra-253b": {
+"ctx": 128000,
+"reasoning": true
+},
+"llama-3.2-1b": {
+"ctx": 131072,
+"reasoning": false
+},
+"llama-3.2-3b": {
+"ctx": 131072,
+"reasoning": false
+},
+"llama-3.3-70b-instruct": {
+"ctx": 128000,
+"reasoning": false
+},
+"llama-3.3-nemotron-super-49b-v1": {
+"ctx": 131072,
+"reasoning": true
+},
+"llama-3.3-nemotron-super-49b-v1.5": {
+"ctx": 131072,
+"reasoning": true
+},
+"llama-4-maverick-17b-instruct": {
+"ctx": 1000000,
+"reasoning": false
+},
+"llama-4-scout-17b-instruct": {
+"ctx": 3500000,
+"reasoning": false
+},
+"llama-nemotron-embed-vl-1b-v2": {
+"ctx": 32768,
+"reasoning": false
+},
+"llama-nemotron-rerank-vl-1b-v2": {
+"ctx": 128000,
+"reasoning": false
+},
+"longcat-2.0": {
+"ctx": 1000000,
+"reasoning": true
+},
+"lyria-3-clip-preview": {
+"ctx": 131072,
+"reasoning": false
+},
+"lyria-3-pro-preview": {
+"ctx": 131072,
+"reasoning": false
+},
+"magistral-medium-latest": {
+"ctx": 128000,
+"reasoning": true
+},
+"magistral-small-2506": {
+"ctx": 131072,
+"reasoning": true
+},
+"mai-code-1-flash": {
+"ctx": 256000,
+"reasoning": true
+},
+"mimo-v2-flash": {
+"ctx": 262144,
+"reasoning": true
+},
+"mimo-v2-omni": {
+"ctx": 262144,
+"reasoning": true
+},
+"mimo-v2-pro": {
+"ctx": 1048576,
+"reasoning": true
+},
+"mimo-v2.5": {
+"ctx": 1048576,
+"reasoning": true
+},
+"mimo-v2.5-pro": {
+"ctx": 1048576,
+"reasoning": true
+},
+"mimo-v2.5-pro-ultraspeed": {
+"ctx": 1048576,
+"reasoning": true
+},
+"minimax-m2": {
+"ctx": 196608,
+"reasoning": true
+},
+"minimax-m2.1": {
+"ctx": 204800,
+"reasoning": true
+},
+"minimax-m2.5": {
+"ctx": 204800,
+"reasoning": true
+},
+"minimax-m2.5-highspeed": {
+"ctx": 204800,
+"reasoning": true
+},
+"minimax-m2.7": {
+"ctx": 204800,
+"reasoning": true
+},
+"minimax-m2.7-highspeed": {
+"ctx": 204800,
+"reasoning": true
+},
+"minimax-m3": {
+"ctx": 512000,
+"reasoning": true
+},
+"ministral-8b-instruct-2410": {
+"ctx": 131072,
+"reasoning": false
+},
+"mistral-large-2411": {
+"ctx": 131072,
+"reasoning": false
+},
+"mistral-large-2512": {
+"ctx": 262144,
+"reasoning": false
+},
+"mistral-large-latest": {
+"ctx": 262144,
+"reasoning": false
+},
+"mistral-medium-2505": {
+"ctx": 131072,
+"reasoning": false
+},
+"mistral-medium-2604": {
+"ctx": 262144,
+"reasoning": true
+},
+"mistral-medium-latest": {
+"ctx": 262144,
+"reasoning": true
+},
+"mistral-nemo": {
+"ctx": 128000,
+"reasoning": false
+},
+"mistral-nemotron": {
+"ctx": 128000,
+"reasoning": false
+},
+"mistral-small-2506": {
+"ctx": 128000,
+"reasoning": false
+},
+"mistral-small-2603": {
+"ctx": 256000,
+"reasoning": true
+},
+"mistral-small-3-1-24b-instruct-2503": {
+"ctx": 128000,
+"reasoning": false
+},
+"mistral-small-latest": {
+"ctx": 256000,
+"reasoning": true
+},
+"muse-spark-1.1": {
+"ctx": 1000000,
+"reasoning": true
+},
+"muse-spark-1.2": {
+"ctx": 1048576,
+"reasoning": true
+},
+"nemotron-3-content-safety": {
+"ctx": 128000,
+"reasoning": false
+},
+"nemotron-3-nano-30b-a3b": {
+"ctx": 262144,
+"reasoning": true
+},
+"nemotron-3-nano-omni-30b-a3b-reasoning": {
+"ctx": 256000,
+"reasoning": true
+},
+"nemotron-3-super-120b-a12b": {
+"ctx": 262144,
+"reasoning": true
+},
+"nemotron-3-ultra-550b-a55b": {
+"ctx": 1000000,
+"reasoning": true
+},
+"nemotron-3.5-content-safety": {
+"ctx": 128000,
+"reasoning": true
+},
+"nemotron-cascade-2-30b-a3b": {
+"ctx": 256000,
+"reasoning": true
+},
+"nemotron-content-safety-reasoning-4b": {
+"ctx": 128000,
+"reasoning": true
+},
+"nemotron-mini-4b-instruct": {
+"ctx": 128000,
+"reasoning": false
+},
+"nemotron-nano-12b-v2-vl": {
+"ctx": 128000,
+"reasoning": true
+},
+"nemotron-nano-9b-v2": {
+"ctx": 131072,
+"reasoning": true
+},
+"nemotron-voicechat": {
+"ctx": 128000,
+"reasoning": false
+},
+"north-mini-code-1-0": {
+"ctx": 256000,
+"reasoning": true
+},
+"o1": {
+"ctx": 200000,
+"reasoning": true
+},
+"o1-pro": {
+"ctx": 200000,
+"reasoning": true
+},
+"o3": {
+"ctx": 200000,
+"reasoning": true
+},
+"o3-deep-research": {
+"ctx": 200000,
+"reasoning": true
+},
+"o3-mini": {
+"ctx": 200000,
+"reasoning": true
+},
+"o3-pro": {
+"ctx": 200000,
+"reasoning": true
+},
+"o4-mini": {
+"ctx": 200000,
+"reasoning": true
+},
+"o4-mini-deep-research": {
+"ctx": 200000,
+"reasoning": true
+},
+"ornith-1.0-31b": {
+"ctx": 262144,
+"reasoning": true
+},
+"ornith-1.0-35b": {
+"ctx": 262144,
+"reasoning": true
+},
+"ornith-1.0-397b": {
+"ctx": 262144,
+"reasoning": true
+},
+"ornith-1.0-9b": {
+"ctx": 262144,
+"reasoning": true
+},
+"phi-4-mini": {
+"ctx": 128000,
+"reasoning": false
+},
+"pixtral-12b": {
+"ctx": 128000,
+"reasoning": false
+},
+"pixtral-large-latest": {
+"ctx": 128000,
+"reasoning": false
+},
+"qwen-flash": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen-max": {
+"ctx": 32768,
+"reasoning": false
+},
+"qwen-omni-turbo": {
+"ctx": 32768,
+"reasoning": false
+},
+"qwen-plus": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen-turbo": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen-vl-max": {
+"ctx": 131072,
+"reasoning": false
+},
+"qwen-vl-plus": {
+"ctx": 131072,
+"reasoning": false
+},
+"qwen2-5-vl-72b-instruct": {
+"ctx": 131072,
+"reasoning": false
+},
+"qwen2.5-coder-0.5b": {
+"ctx": 32768,
+"reasoning": false
+},
+"qwen3-235b-a22b": {
+"ctx": 131072,
+"reasoning": true
+},
+"qwen3-235b-a22b-instruct-2507": {
+"ctx": 262144,
+"reasoning": false
+},
+"qwen3-32b": {
+"ctx": 131072,
+"reasoning": true
+},
+"qwen3-coder-30b-a3b-instruct": {
+"ctx": 262144,
+"reasoning": false
+},
+"qwen3-coder-480b-a35b-instruct": {
+"ctx": 262144,
+"reasoning": false
+},
+"qwen3-coder-flash": {
+"ctx": 1000000,
+"reasoning": false
+},
+"qwen3-coder-next": {
+"ctx": 262144,
+"reasoning": false
+},
+"qwen3-coder-plus": {
+"ctx": 1048576,
+"reasoning": false
+},
+"qwen3-max": {
+"ctx": 262144,
+"reasoning": false
+},
+"qwen3-next-80b-a3b-instruct": {
+"ctx": 131072,
+"reasoning": false
+},
+"qwen3-next-80b-a3b-thinking": {
+"ctx": 131072,
+"reasoning": true
+},
+"qwen3-vl-plus": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.5-122b-a10b": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.5-27b": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.5-35b-a3b": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.5-397b-a17b": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.5-9b": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.5-flash": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.5-plus": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.6-27b": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.6-35b-a3b": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.6-flash": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.6-max-preview": {
+"ctx": 262144,
+"reasoning": true
+},
+"qwen3.6-plus": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.7-flash": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.7-max": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.7-plus": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.8-max": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwen3.8-max-preview": {
+"ctx": 1000000,
+"reasoning": true
+},
+"qwq-plus": {
+"ctx": 131072,
+"reasoning": true
+},
+"sarvam-105b": {
+"ctx": 131072,
+"reasoning": true
+},
+"sarvam-30b": {
+"ctx": 128000,
+"reasoning": true
+},
+"sonar": {
+"ctx": 128000,
+"reasoning": false
+},
+"sonar-pro": {
+"ctx": 200000,
+"reasoning": false
+},
+"sonar-reasoning-pro": {
+"ctx": 128000,
+"reasoning": true
+},
+"step-3.5-flash": {
+"ctx": 256000,
+"reasoning": true
+},
+"step-3.5-flash-2603": {
+"ctx": 256000,
+"reasoning": true
+},
+"step-3.7-flash": {
+"ctx": 256000,
+"reasoning": true
+},
+"veo-3.1-fast-generate-preview": {
+"ctx": 1024,
+"reasoning": false
+},
+"veo-3.1-generate-preview": {
+"ctx": 1024,
+"reasoning": false
+},
+"veo-3.1-lite-generate-preview": {
+"ctx": 1024,
+"reasoning": false
+},
+"whisper-large-v3": {
+"ctx": 448,
+"reasoning": false
+},
+"whisper-large-v3-turbo": {
+"ctx": 448,
+"reasoning": false
+}
+}

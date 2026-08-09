@@ -19,6 +19,7 @@ import re
 import sys
 import glob
 import shutil
+import subprocess
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -222,6 +223,14 @@ def main():
     resources_dir = find_resources_dir()
     print(f"Resources 目录: {resources_dir}")
     print()
+
+    # 0. 更新模型映射（models.dev → data/model-map.json → app.asar）
+    print("=== 更新模型映射（models.dev） ===")
+    try:
+        subprocess.run([sys.executable, os.path.join(SCRIPT_DIR, "generate-model-map.py")], check=False)
+        subprocess.run([sys.executable, os.path.join(SCRIPT_DIR, "patch-model-map.py"), resources_dir], check=False)
+    except Exception as e:
+        print(f"  跳过模型映射（{e}）")
 
     # 1. Root level JSON
     print("=== 修补 Root level JSON ===")

@@ -66,7 +66,8 @@ claude-desktop-chinese/
 │   ├── ion-dist-zh-TW.overrides.json
 │   ├── zh_CN.lproj_Localizable.strings  # macOS 系统菜单
 │   ├── zh_TW.lproj_Localizable.strings
-│   └── en-US.json         # 当前版本英文原文（用于 key 匹配）
+│   ├── en-US.json         # 当前版本英文原文（用于 key 匹配）
+│   └── model-map.json     # models.dev 模型映射（上下文长度 + 思考强度）
 └── scripts/
     └── apply.py           # 补丁应用脚本
 ```

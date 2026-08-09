@@ -142,11 +142,20 @@ x1="en-US",S1=["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT",
 
 均为 warn 级校验，恒真后无副作用（企业「允许模型列表」等独立检查不受影响）。
 
-### 7b. 思考强度（Effort）对全部模型可见（2026-08 版）
+### 7b. 思考强度（Effort）与 1M 上下文映射（models.dev 驱动）
 
-模型的思考强度（Effort/工作量）由本地 edge-api bootstrap 的 `model_selector_config` 驱动，生成函数 `sd()` 中每个模型的 `thinking` 元数据来自 `Hu(id)`——该函数只对内置目录中的 Claude 模型返回 `effort_options`，其余模型返回空 → 非 Claude 模型（deepseek/glm/kimi 等）不显示思考强度。
+模型的思考强度（Effort/工作量）与 1M 上下文变体由本地 edge-api bootstrap 的 `model_selector_config` 驱动。生成函数 `sd()`/`Hu()` 只对内置目录中的 Claude 模型有元数据，网关模型（deepseek/glm/kimi 等）缺失。
 
-补丁：asar `.vite/build/index.chunk-w2M3Ll-M.js` 中 `function Hu(e){...if(!n)return;` 改为 `if(!n)n=ju;`（无目录元数据时回退到默认配置 `ju`：low/medium/high/xhigh/max 全部档位 + auto 模式）。修改后模型名与思考强度可在输入框旁同时展示。
+本项目使用 **https://models.dev/models.json**（主流模型配置：`limit.context` 上下文长度 + `reasoning` 思考能力）做映射，**每次执行汉化时自动更新**：
+
+- `scripts/generate-model-map.py`：下载 models.dev → 生成 `data/model-map.json`（`{模型ID: {ctx, reasoning}}`，含小写别名）
+- `scripts/patch-model-map.py`：将映射嵌入 `app.asar` 的 `index.chunk-w2M3Ll-M.js`：
+  - 注入 `var MdlMap=JSON.parse("...")`（**变量名不能叫 Mv**，chunk 内已有 yaml 库的 `loadAll:Mv` 会覆盖）
+  - `sd()`：`supports1m` 由 `MdlMap[id].ctx >= 1e6` 决定 → 自动生成 `[1m]` 变体
+  - `Hu()`：无目录元数据时按 `MdlMap[id].reasoning` 回退 `ju`（完整 effort 档位），非推理模型无思考强度
+- apply.py 第 0 步自动执行上述两步（网络失败则沿用旧映射）
+
+注意：该补丁与「7. 网关模型校验」一样需要重打 asar 并重新签名（含 entitlements，见上）。
 
 ### 8. 重签名后的钥匙链授权
 
