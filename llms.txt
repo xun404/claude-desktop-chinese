@@ -248,17 +248,26 @@ for k, v in cn.items():
 
 ## 完整执行步骤
 
-1. **处理 SIP 保护** — 如果直接写入 `/Applications/Claude.app` 失败，使用临时目录策略（见上文）
-2. **备份当前翻译数据** — 将当前 `zh-CN.json`/`zh-TW.json` 保存到 `data/` 目录
-3. **应用 Electron 原生翻译** — 用 `data/root-zh-CN.json` 和 `data/root-zh-TW.json` 的内容创建/覆盖 `Resources/zh-CN.json` 和 `Resources/zh-TW.json`
-4. **应用 macOS 系统菜单翻译** — 用 `data/zh_CN.lproj_Localizable.strings` 和 `data/zh_TW.lproj_Localizable.strings` 创建/覆盖 `zh_CN.lproj/` 和 `zh_TW.lproj/` 的 `Localizable.strings`
-5. **应用 Web UI 翻译** — 以 `en-US.json` 为基础创建 `zh-CN.json`/`zh-TW.json`，用 `data/ion-dist-zh-CN.json` 的翻译覆盖对应值。如果目标文件已存在则合并更新
-6. **复制到动态加载目录** — 将 zh-CN.json/zh-TW.json 复制到 `ion-dist/i18n/dynamic/`
-7. **修补 JS 语言白名单** — 查找 `c4b350ac1-*.js`，将 `S1` 语言白名单数组添加 `"zh-CN","zh-TW"`（**必须，否则设置中无中文选项**）
-8. **修补 JS 语言显示名称** — 在 `index-*.js` 中替换 localName 生成代码
-9. **重新签名** — 如果 app 不在 `/Applications/` 下，用 `codesign --force --deep -s -` 重新签名
-10. **验证** — 运行翻译质量检查，确认无遗漏
-11. **保存新版 en-US.json** — 保存到 `data/` 目录以备 key 变化时使用
+1. **处理 SIP 保护** — 复制 app 到临时目录：`cp -R /Applications/Claude.app /tmp/Claude_Backup.app`，所有补丁在副本上进行
+2. **更新模型映射** — `python3 scripts/apply.py /tmp/Claude_Backup.app/Contents/Resources` 第 0 步自动完成：
+   - `generate-model-map.py`：下载 models.dev `api.json` 的 opencodezen 节点 → 缓存到 `data/models-dev-api.json`（网络失败用缓存）→ 生成 `data/model-map.json`
+   - `patch-model-map.py`：嵌入 `app.asar`（MdlMap 映射、sd 仅 `[1m]` 变体、Hu effort 档位匹配、safeStorage 钥匙链禁用补丁）
+3. **备份当前翻译数据** — 将当前 `zh-CN.json`/`zh-TW.json` 保存到 `data/` 目录
+4. **应用翻译文件**（apply.py 第 1-4 步）：
+   - Electron 原生翻译：`data/root-zh-CN.json`/`root-zh-TW.json` → `Resources/zh-CN.json`/`zh-TW.json`
+   - macOS 系统菜单：lproj `Localizable.strings`
+   - Web UI 翻译：以 `en-US.json` 为基础创建 `ion-dist/i18n/zh-CN.json`/`zh-TW.json`，用 `data/ion-dist-zh-CN.json` 的翻译覆盖
+   - 动态目录：`ion-dist/i18n/dynamic/`（优先用 `data/ion-dist-dynamic-*.json`）
+5. **JS 语言白名单** — apply.py 自动尝试 `c4b350ac1-*.js` → `shared-1-*.js`（2026-08 版在 `shared-1-*.js` 的 `J_` 数组，必须加 `"zh-CN","zh-TW"`，否则设置中无中文选项）
+6. **模型校验恒真**（如出现「看起来不是 Anthropic 模型」告警或模型发现为空）— 按第 7 节补丁三处（`ce`/`qB`/`de`）
+7. **重新签名（含 entitlements，顺序不能错）** — 按第 5 节流程：
+   - 整体深签 `codesign --force --deep -s -`（在 `/tmp` 下，App Management 限制）
+   - 4 个 helper 各用自己的 entitlements（`scripts/entitlements/helper-*.xml`）
+   - 主二进制最后签：`codesign --force -s - --entitlements scripts/entitlements/main-adhoc.xml`
+   - `codesign --verify --deep --strict` 验证
+8. **替换安装** — 管理员权限：`mv /Applications/Claude.app /tmp/Claude_Original.app && cp -R /tmp/Claude_Backup.app /Applications/Claude.app && chown -R <user> /Applications/Claude.app`
+9. **验证** — 运行翻译质量检查（见上文）；启动应用确认：无钥匙链弹窗、模型发现可用、思考强度档位匹配、语言选择器含简体/繁体
+10. **保存新版 en-US.json** — 保存到 `data/` 目录以备 key 变化时使用（`data/ion-dist-en-US-current.json`）
 
 ## 翻译术语对照表
 

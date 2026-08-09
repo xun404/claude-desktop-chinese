@@ -1,6 +1,6 @@
 # Claude Desktop 中文本地化补丁
 
-为 Claude Mac 桌面应用提供完整的简体中文和繁体中文翻译。
+为 Claude Mac 桌面应用提供完整的简体中文和繁体中文翻译，并附带模型映射（上下文长度/思考强度）与运行体验修复。
 
 ## 修改的文件
 
@@ -14,8 +14,10 @@
 | `Resources/ion-dist/i18n/zh-TW.json` | Web UI 翻译（繁体中文） |
 | `Resources/ion-dist/i18n/dynamic/zh-CN.json` | 动态加载翻译（简体中文） |
 | `Resources/ion-dist/i18n/dynamic/zh-TW.json` | 动态加载翻译（繁体中文） |
-| `Resources/ion-dist/assets/v1/index-*.js` | 语言选择器显示名称 |
-| `Resources/ion-dist/assets/v1/c4b350ac1-*.js` | 语言白名单列表 |
+| `Resources/ion-dist/assets/v1/shared-1-*.js` | 语言白名单（`J_` 数组，2026-08 版起） |
+| `Resources/ion-dist/assets/v1/shared-4-*.js` | 日期格式化语言映射 |
+| `Resources/ion-dist/assets/v1/cc86060d6-*.js` | 模型校验恒真（恢复模型发现） |
+| `Resources/app.asar` | 主进程补丁：模型映射（1M/思考强度）、safeStorage 钥匙链禁用、CDP 调试 |
 
 ## 安装与使用
 
@@ -31,30 +33,40 @@ python3 scripts/apply.py
 
 默认路径为 `/Applications/Claude.app/Contents/Resources`，可通过参数指定。
 
-### macOS 26+ SIP 保护处理
+### macOS 26+ 签名与安装流程
 
-macOS 26+ 对 `/Applications/` 下的 app bundle 启用了强 SIP 保护，无法直接写入。脚本会自动检测并采用以下策略：
+macOS 26+ 对 `/Applications/` 下的 app bundle 启用了强 SIP/App Management 保护，无法直接写入。完整流程：
 
-1. 将 app 复制到 `/tmp/Claude_Backup.app`
-2. 在临时副本上应用补丁
-3. 用管理员权限替换原 app（需输入密码）
+1. 复制 app 到临时目录：`cp -R /Applications/Claude.app /tmp/Claude_Backup.app`
+2. 在临时副本上运行 `python3 scripts/apply.py /tmp/Claude_Backup.app/Contents/Resources`
+3. **带 entitlements 重签名**（详见 `llms.txt` 第 5 节，`scripts/entitlements/` 已存档）：
+   先整体深签 → 各 helper 用自己的 entitlements → 主二进制最后签（ad-hoc 精简版）
+4. 用管理员权限替换原 app：`osascript -e 'do shell script "..." with administrator privileges'`
+5. `chown -R` 修复所有权，`codesign --verify --deep --strict` 验证
 
-如果替换失败，脚本会将补丁后的 app 安装到 `~/Applications/Claude.app`。
+## 功能说明
+
+- **模型映射（models.dev）**：每次汉化自动从 `api.json` 的 opencodezen 节点（`opencode-go`）拉取主流模型配置（上下文长度 + 思考强度档位），嵌入 app.asar：
+  - 上下文 ≥ 1M 的模型只生成 `[1m]` 变体
+  - 思考强度按模型精确匹配（如 deepseek-v4-flash → low/high/max）
+  - 映射缓存在本地，更换 gateway 无需重跑汉化
+- **钥匙链弹窗消除**：safeStorage 补丁使应用永不访问钥匙链，启动/重签名后不再弹窗
+- **模型发现恢复**：厂商白名单校验恒真，GLM/DeepSeek/Kimi 等网关模型全部可选
 
 ## 注意事项
 
-- `ion-dist/assets/v1/index-*.js` 和 `c4b350ac1-*.js` 文件名包含 hash，每个版本不同
+- `ion-dist/assets/v1/*.js` 文件名包含 hash，每个版本不同
 - i18n 的 key 是 hash 值，可能随版本更新而变化
 - 翻译数据以 `data/` 目录中的 JSON 文件为准
 - `apply.py` 仅更新目标文件中已存在的 key，不会添加新 key
-- 版本更新后可能需要重新执行补丁
+- 版本更新后需重新执行补丁（含重签名）
 
 ## 目录结构
 
 ```
 claude-desktop-chinese/
 ├── README.md
-├── llms.txt              # AI 指导文档
+├── llms.txt              # AI 指导文档（完整流程）
 ├── data/
 │   ├── root-zh-CN.json   # Electron 原生界面翻译
 │   ├── root-zh-TW.json
@@ -67,10 +79,14 @@ claude-desktop-chinese/
 │   ├── zh_CN.lproj_Localizable.strings  # macOS 系统菜单
 │   ├── zh_TW.lproj_Localizable.strings
 │   ├── en-US.json         # 当前版本英文原文（用于 key 匹配）
-│   └── model-map.json     # models.dev 模型映射（上下文长度 + 思考强度）
+│   ├── model-map.json     # 模型映射（上下文长度 + 思考强度档位）
+│   └── models-dev-api.json # models.dev api.json 本地缓存
 └── scripts/
-    └── apply.py           # 补丁应用脚本
-```
+    ├── apply.py               # 补丁应用脚本（含模型映射自动更新）
+    ├── generate-model-map.py  # 下载 models.dev → 生成模型映射
+    ├── patch-model-map.py     # 模型映射 + safeStorage 补丁嵌入 app.asar
+    └── entitlements/          # 重签名用 entitlements（主二进制 + 4 个 helper）
+
 
 ## 翻译规范
 
