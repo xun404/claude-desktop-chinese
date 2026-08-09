@@ -194,9 +194,16 @@ def apply_js_localname_patch(resources_dir):
 
 
 def copy_i18n_to_dynamic(resources_dir):
-    """将 zh-CN/zh-TW 复制到 dynamic 目录"""
+    """将 zh-CN/zh-TW 复制到 dynamic 目录（优先使用 data 中的 dynamic 数据文件）"""
     dynamic_dir = os.path.join(resources_dir, "ion-dist", "i18n", "dynamic")
     for lang in ["zh-CN", "zh-TW"]:
+        dynamic_data = os.path.join(DATA_DIR, f"ion-dist-dynamic-{lang}.json")
+        if os.path.exists(dynamic_data):
+            shutil.copy2(dynamic_data, os.path.join(dynamic_dir, f"{lang}.json"))
+            with open(dynamic_data, "r", encoding="utf-8") as f:
+                count = len(json.load(f))
+            print(f"  dynamic/{lang}.json: 写入 {count} 条")
+            continue
         src = os.path.join(resources_dir, "ion-dist", "i18n", f"{lang}.json")
         dst = os.path.join(dynamic_dir, f"{lang}.json")
         if os.path.exists(src):

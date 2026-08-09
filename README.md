@@ -58,8 +58,10 @@ claude-desktop-chinese/
 ├── data/
 │   ├── root-zh-CN.json   # Electron 原生界面翻译
 │   ├── root-zh-TW.json
-│   ├── ion-dist-zh-CN.json  # Web UI 翻译（旧版 key）
+│   ├── ion-dist-zh-CN.json  # Web UI 翻译（简体中文）
 │   ├── ion-dist-zh-TW.json
+│   ├── ion-dist-dynamic-zh-CN.json  # 动态加载翻译（简体中文）
+│   ├── ion-dist-dynamic-zh-TW.json
 │   ├── ion-dist-zh-CN.overrides.json
 │   ├── ion-dist-zh-TW.overrides.json
 │   ├── zh_CN.lproj_Localizable.strings  # macOS 系统菜单
