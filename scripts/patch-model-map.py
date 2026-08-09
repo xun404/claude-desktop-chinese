@@ -9,8 +9,8 @@
 
 补丁内容（index.chunk-w2M3Ll-M.js）:
   1. 注入 var MdlMap=JSON.parse("...")  （models.dev 紧凑映射）
-  2. sd(): supports1m 由映射 ctx>=1e6 决定 → 自动生成 [1m] 变体
-  3. Hu(): 思考强度由映射 reasoning 决定 → 无目录元数据时回退 ju
+  2. Hu(): 思考强度由映射 reasoning 决定 → 无目录元数据时回退 ju
+  3. sd(): 保持原版，不生成 [1m] 变体（若存在变体生成补丁则还原）
 
 需要 npx（@electron/asar）。替换后需重新签名（见 llms.txt 签名流程）。
 """
@@ -69,17 +69,20 @@ def patch_chunk(chunk_path):
         c = c.replace(marker, literal + marker, 1)
         changed.append("注入 MdlMap 映射")
 
-    # 2. sd(): supports1m 由映射 ctx 决定
-    if "MdlMap[e.id.toLowerCase()]||{}).ctx??0)>=1e6" not in c:
-        old_sd = 'function sd(e){let t=e.models.flatMap(e=>{let t={id:e.id,name:e.labelOverride??e.name,description:ad(e.id),thinking:Hu(e.id),...e.restricted&&wu(e.labelOverride??e.name)};return!e.supports1m||e.restricted?[t]:[t,{...t,id:`${e.id}[1m]`,description:od,supports_1m_context:!0}]});return Wu.map(e=>({id:e,models:t}))}'
-        new_sd = 'function sd(e){let t=e.models.flatMap(e=>{let s=!!e.supports1m||((MdlMap[e.id.toLowerCase()]||{}).ctx??0)>=1e6,t={id:e.id,name:e.labelOverride??e.name,description:ad(e.id),thinking:Hu(e.id),...e.restricted&&wu(e.labelOverride??e.name)};return!s||e.restricted?[t]:[t,{...t,id:`${e.id}[1m]`,description:od,supports_1m_context:!0}]});return Wu.map(e=>({id:e,models:t}))}'
-        if old_sd not in c:
-            print("  跳过 sd(): 模式未匹配（版本可能已变更）")
-        else:
-            c = c.replace(old_sd, new_sd, 1)
-            changed.append("补丁 sd(): 1M 变体按上下文长度")
+    # 2. sd(): 1M 模型只生成 [1m] 变体（不显示变体前的基础条目）
+    variant_only = 'function sd(e){let t=e.models.flatMap(e=>{let s=!!e.supports1m||((MdlMap[e.id.toLowerCase()]||{}).ctx??0)>=1e6,t={id:e.id,name:e.labelOverride??e.name,description:ad(e.id),thinking:Hu(e.id),...e.restricted&&wu(e.labelOverride??e.name)};return!s||e.restricted?[t]:[{...t,id:`${e.id}[1m]`,description:od,supports_1m_context:!0}]});return Wu.map(e=>({id:e,models:t}))}'
+    old_variant = 'function sd(e){let t=e.models.flatMap(e=>{let s=!!e.supports1m||((MdlMap[e.id.toLowerCase()]||{}).ctx??0)>=1e6,t={id:e.id,name:e.labelOverride??e.name,description:ad(e.id),thinking:Hu(e.id),...e.restricted&&wu(e.labelOverride??e.name)};return!s||e.restricted?[t]:[t,{...t,id:`${e.id}[1m]`,description:od,supports_1m_context:!0}]});return Wu.map(e=>({id:e,models:t}))}'
+    original_sd = 'function sd(e){let t=e.models.flatMap(e=>{let t={id:e.id,name:e.labelOverride??e.name,description:ad(e.id),thinking:Hu(e.id),...e.restricted&&wu(e.labelOverride??e.name)};return!e.supports1m||e.restricted?[t]:[t,{...t,id:`${e.id}[1m]`,description:od,supports_1m_context:!0}]});return Wu.map(e=>({id:e,models:t}))}'
+    if variant_only in c:
+        changed.append("sd() 已补丁（仅 [1m] 变体）")
+    elif old_variant in c:
+        c = c.replace(old_variant, variant_only, 1)
+        changed.append("sd(): 改为仅 [1m] 变体")
+    elif original_sd in c:
+        c = c.replace(original_sd, variant_only, 1)
+        changed.append("sd(): 仅 [1m] 变体（按映射 ctx）")
     else:
-        changed.append("sd() 已补丁")
+        print("  跳过 sd(): 模式未匹配（版本可能已变更）")
 
     # 3. Hu(): 思考强度按 reasoning
     if "MdlMap[e.toLowerCase()]" not in c:

@@ -151,7 +151,7 @@ x1="en-US",S1=["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT",
 - `scripts/generate-model-map.py`：下载 models.dev → 生成 `data/model-map.json`（`{模型ID: {ctx, reasoning}}`，含小写别名）
 - `scripts/patch-model-map.py`：将映射嵌入 `app.asar` 的 `index.chunk-w2M3Ll-M.js`：
   - 注入 `var MdlMap=JSON.parse("...")`（**变量名不能叫 Mv**，chunk 内已有 yaml 库的 `loadAll:Mv` 会覆盖）
-  - `sd()`：`supports1m` 由 `MdlMap[id].ctx >= 1e6` 决定 → 自动生成 `[1m]` 变体
+  - `sd()`：`ctx >= 1e6` 的模型**只生成 `[1m]` 变体，不显示基础条目**（`return !s||e.restricted?[t]:[{...t,id:\`${e.id}[1m]\`,...}]`）
   - `Hu()`：无目录元数据时按 `MdlMap[id].reasoning` 回退 `ju`（完整 effort 档位），非推理模型无思考强度
 - apply.py 第 0 步自动执行上述两步（网络失败则沿用旧映射）
 
