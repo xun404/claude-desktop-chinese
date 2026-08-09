@@ -22,6 +22,17 @@ macOS 26+ 对 `/Applications/` 下的 app bundle 启用了强 SIP 保护。**直
    - `osascript -e 'do shell script "cp -R /tmp/Claude_Backup.app /Applications/Claude.app" with administrator privileges'`
    - 或者手动操作：先备份原 app 再复制回
 
+**注意：** macOS 26+ 的 App Management 保护会阻止对 `/Applications/` 下 app bundle 的写入（即使 root 也报 `Operation not permitted`，`cp`/`chown` 例外但 `xattr`/`codesign` 会被拒绝）。替换后必须**在 `/tmp` 下完成重新签名**再换回：
+
+```bash
+xattr -dr com.apple.quarantine /tmp/Claude_Backup.app
+codesign --force --deep -s - /tmp/Claude_Backup.app
+codesign --verify --deep --strict /tmp/Claude_Backup.app
+# 再用管理员权限：mv /Applications/Claude.app /tmp/Claude_Original.app && cp -R /tmp/Claude_Backup.app /Applications/Claude.app && chown -R <user> /Applications/Claude.app
+```
+
+否则启动时会提示「已损坏，无法打开」。已启动过的 app 在 `~/Library/Preferences` 有记录，重新签名后仍可正常启动。
+
 ### 备选策略
 
 如果 SIP 完全阻止替换（即使 root 也无法写入），将补丁后的 app 安装到 `~/Applications/Claude.app`：
