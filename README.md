@@ -21,28 +21,13 @@
 
 ## 安装与使用
 
-### 方法一：AI Agent 自动化安装（推荐）
+### AI Agent 自动化安装（唯一方式）
 
-将本项目交给 AI Agent，让它读取 `llms.txt` 后自动完成所有补丁步骤。
+将本项目交给 Claude Code 等 AI Agent，让它读取 `llms.txt` 后自动完成所有补丁步骤：翻译应用、模型映射更新、语言白名单、带 entitlements 重签名与管理员替换安装。
 
-### 方法二：手动安装
+**为什么只保留 Agent 方式：** Claude Desktop 版本更新过快。每次更新后 i18n key 哈希、`ion-dist` 文件名（hash 后缀）、语言白名单位置（`c4b350ac1-*.js` → `shared-1-*.js`）、asar 结构等都会变化，手动安装难以持续跟进；AI Agent 可读取 `llms.txt` 自动适配各版本。
 
-```bash
-python3 scripts/apply.py
-```
-
-默认路径为 `/Applications/Claude.app/Contents/Resources`，可通过参数指定。
-
-### macOS 26+ 签名与安装流程
-
-macOS 26+ 对 `/Applications/` 下的 app bundle 启用了强 SIP/App Management 保护，无法直接写入。完整流程：
-
-1. 复制 app 到临时目录：`cp -R /Applications/Claude.app /tmp/Claude_Backup.app`
-2. 在临时副本上运行 `python3 scripts/apply.py /tmp/Claude_Backup.app/Contents/Resources`
-3. **带 entitlements 重签名**（详见 `llms.txt` 第 5 节，`scripts/entitlements/` 已存档）：
-   先整体深签 → 各 helper 用自己的 entitlements → 主二进制最后签（ad-hoc 精简版）
-4. 用管理员权限替换原 app：`osascript -e 'do shell script "..." with administrator privileges'`
-5. `chown -R` 修复所有权，`codesign --verify --deep --strict` 验证
+> 完整流程（macOS 26+ SIP 处理、带 entitlements 重签名、替换安装、验证）见 `llms.txt`。
 
 ## 功能说明
 
