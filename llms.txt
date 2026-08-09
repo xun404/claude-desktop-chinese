@@ -215,15 +215,39 @@ print(f"Updated {count} keys")
 
 如果更新数量显著少于上次（上次约 20721 条），说明 key 大量变化，需要使用方法二。
 
-### 方法二：通过英文原文重新匹配 key
+### 方法二：通过英文原文重新匹配 key（推荐）
 
-如果 key 变化较大，需要：
-1. 读取新版 `en-US.json` 建立 key→英文原文 映射
-2. 读取旧版 `data/ion-dist-zh-CN.json` 中的翻译
-3. 对比英文原文找出旧 key 对应的新 key
-4. 用新 key 将翻译写入目标文件
+key 变化时，按英文原文归一化重匹配（2026-08 版实测：12984→20721 键时恢复 10201 键）：
 
-`data/en-US.json` 已保存了当前版本的英文原文。每次更新时都应保存新版 `en-US.json`。
+```python
+import json, re
+def norm(s):
+    # 统一弯引号/弯撇号，压缩空白——hash 变化时英文原文常有此类微小差异
+    s = s.replace("\u2019", "'").replace("\u2018", "'").replace("\u201c", '"').replace("\u201d", '"')
+    return re.sub(r"\s+", " ", s).strip()
+
+new_en = json.load(open('Resources/ion-dist/i18n/en-US.json'))      # 新版英文
+old_en = json.load(open('data/en-US.json'))                           # 旧版英文（每次更新保存）
+old_cn = json.load(open('data/ion-dist-zh-CN.json'))                  # 旧版翻译
+
+norm_old = {}
+for k, v in old_en.items():
+    norm_old.setdefault(norm(v), []).append(k)
+
+base = {}                                # 重匹配后的翻译（key 为新版）
+for k, v in new_en.items():
+    if k in old_cn:
+        base[k] = old_cn[k]
+    else:
+        cands = norm_old.get(norm(v), [])
+        if len(cands) == 1 and cands[0] in old_cn:
+            base[k] = old_cn[cands[0]]
+print(f"重匹配 {len(base)} 键")
+```
+
+真正的新字符串（如本次约 10520 条）需重新翻译；翻译完成后应把新版 key 全量**回写 `data/ion-dist-zh-CN.json`/`zh-TW.json`**，使下次汉化直接按新 key 合并。
+
+`data/en-US.json` 已保存了当前版本的英文原文。每次更新时都应保存新版 `en-US.json`（llms.txt 步骤 10）。
 
 ## 翻译质量检查翻译完成后，应检查以下内容：
 
