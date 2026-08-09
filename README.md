@@ -4,6 +4,8 @@
 
 基于版本：Claude Desktop 1.26832.0（2026-08-09 汉化）
 
+![界面截图](docs/screenshot.png)
+
 ## 安装
 
 AI Agent 自动化安装：根据 llms.txt 汉化本地 Claude Desktop。
