@@ -1,106 +1,27 @@
-# Claude Desktop 中文本地化补丁
+# Claude Desktop 中文本地化
 
-为 Claude Mac 桌面应用提供完整的简体中文和繁体中文翻译，并附带模型映射（上下文长度/思考强度）与运行体验修复。
+为 Claude Mac 桌面应用提供简体中文和繁体中文翻译，并附带模型映射与运行修复。
 
-## 修改的文件
+## 安装
 
-| 文件 | 用途 |
-|------|------|
-| `Resources/zh-CN.json` | Electron 原生界面（简体中文） |
-| `Resources/zh-TW.json` | Electron 原生界面（繁体中文） |
-| `Resources/zh_CN.lproj/Localizable.strings` | macOS 系统菜单（简体中文） |
-| `Resources/zh_TW.lproj/Localizable.strings` | macOS 系统菜单（繁体中文） |
-| `Resources/ion-dist/i18n/zh-CN.json` | Web UI 翻译（简体中文） |
-| `Resources/ion-dist/i18n/zh-TW.json` | Web UI 翻译（繁体中文） |
-| `Resources/ion-dist/i18n/dynamic/zh-CN.json` | 动态加载翻译（简体中文） |
-| `Resources/ion-dist/i18n/dynamic/zh-TW.json` | 动态加载翻译（繁体中文） |
-| `Resources/ion-dist/assets/v1/shared-1-*.js` | 语言白名单（`J_` 数组，2026-08 版起） |
-| `Resources/ion-dist/assets/v1/shared-4-*.js` | 日期格式化语言映射 |
-| `Resources/ion-dist/assets/v1/cc86060d6-*.js` | 模型校验恒真（恢复模型发现） |
-| `Resources/app.asar` | 主进程补丁：模型映射（1M/思考强度）、safeStorage 钥匙链禁用、CDP 调试 |
+AI Agent 自动化安装（唯一方式）：根据 llms.txt 汉化本地 Claude Desktop。
 
-## 安装与使用
+版本更新过快，手动安装难以跟进；AI Agent 会按 llms.txt 自动完成翻译、模型映射、重签名与安装。
 
-### AI Agent 自动化安装（唯一方式）
+## 功能
 
-将本项目交给 Claude Code 等 AI Agent，让它读取 `llms.txt` 后自动完成所有补丁步骤：翻译应用、模型映射更新、语言白名单、带 entitlements 重签名与管理员替换安装。
-
-**为什么只保留 Agent 方式：** Claude Desktop 版本更新过快。每次更新后 i18n key 哈希、`ion-dist` 文件名（hash 后缀）、语言白名单位置（`c4b350ac1-*.js` → `shared-1-*.js`）、asar 结构等都会变化，手动安装难以持续跟进；AI Agent 可读取 `llms.txt` 自动适配各版本。
-
-> 完整流程（macOS 26+ SIP 处理、带 entitlements 重签名、替换安装、验证）见 `llms.txt`。
-
-## 功能说明
-
-- **模型映射（models.dev）**：每次汉化自动从 `api.json` 的 opencodezen 节点（`opencode-go`）拉取主流模型配置（上下文长度 + 思考强度档位），嵌入 app.asar：
-  - 上下文 ≥ 1M 的模型只生成 `[1m]` 变体
-  - 思考强度按模型精确匹配（如 deepseek-v4-flash → low/high/max）
-  - 映射缓存在本地，更换 gateway 无需重跑汉化
-- **钥匙链弹窗消除**：safeStorage 补丁使应用永不访问钥匙链，启动/重签名后不再弹窗
-- **模型发现恢复**：厂商白名单校验恒真，GLM/DeepSeek/Kimi 等网关模型全部可选
-
-## 注意事项
-
-- `ion-dist/assets/v1/*.js` 文件名包含 hash，每个版本不同
-- i18n 的 key 是 hash 值，可能随版本更新而变化
-- 翻译数据以 `data/` 目录中的 JSON 文件为准
-- `apply.py` 仅更新目标文件中已存在的 key，不会添加新 key
-- 版本更新后需重新执行补丁（含重签名）
+- 全量汉化：Electron 原生界面、Web UI（约 2 万键）、系统菜单，简体 + 繁体
+- 模型映射：每次汉化自动拉取 models.dev 的 opencodezen 节点配置，映射模型上下文长度（1M 变体）与思考强度档位
+- 运行修复：语言白名单、模型发现恢复、钥匙链弹窗消除
 
 ## 目录结构
 
 ```
-claude-desktop-chinese/
-├── README.md
-├── llms.txt              # AI 指导文档（完整流程）
-├── data/
-│   ├── root-zh-CN.json   # Electron 原生界面翻译
-│   ├── root-zh-TW.json
-│   ├── ion-dist-zh-CN.json  # Web UI 翻译（简体中文）
-│   ├── ion-dist-zh-TW.json
-│   ├── ion-dist-dynamic-zh-CN.json  # 动态加载翻译（简体中文）
-│   ├── ion-dist-dynamic-zh-TW.json
-│   ├── ion-dist-zh-CN.overrides.json
-│   ├── ion-dist-zh-TW.overrides.json
-│   ├── zh_CN.lproj_Localizable.strings  # macOS 系统菜单
-│   ├── zh_TW.lproj_Localizable.strings
-│   ├── en-US.json         # 当前版本英文原文（用于 key 匹配）
-│   ├── model-map.json     # 模型映射（上下文长度 + 思考强度档位）
-│   └── models-dev-api.json # models.dev api.json 本地缓存
-└── scripts/
-    ├── apply.py               # 补丁应用脚本（含模型映射自动更新）
-    ├── generate-model-map.py  # 下载 models.dev → 生成模型映射
-    ├── patch-model-map.py     # 模型映射 + safeStorage 补丁嵌入 app.asar
-    └── entitlements/          # 重签名用 entitlements（主二进制 + 4 个 helper）
-
+data/    翻译数据与模型映射（en-US.json、model-map.json 等）
+scripts/ 汉化与模型映射脚本（apply.py 等）
+llms.txt AI Agent 操作指南（完整流程）
+```
 
 ## 翻译规范
 
-### 简体中文 → 繁体中文（台湾）术语对照
-
-| 简体 | 繁体 | 简体 | 繁体 |
-|------|------|------|------|
-| 文件 | 檔案 | 项目 | 專案 |
-| 设置 | 設定 | 插件 | 外掛 |
-| 扩展程序 | 擴充功能 | 仓库 | 存放庫 |
-| 市场 | 市集 | 服务器 | 伺服器 |
-| 会话 | 工作階段 | 禁用 | 停用 |
-| 默认 | 預設 | 自定义 | 自訂 |
-| 黑名单 | 封鎖清單 | 白名单 | 允許清單 |
-| 应用 | 應用程式 | 保存 | 儲存 |
-| 导出 | 匯出 | 导入 | 匯入 |
-| 账号 | 帳號 | 搜索 | 搜尋 |
-| 筛选 | 篩選 | 创建 | 建立 |
-| 池 | 集區 | 例程 | 常式 |
-| 演示文稿 | 簡報 | 工件 | 構件 |
-| 记忆 | 記憶 | 归档 | 封存 |
-| 终端 | 終端機 | 连接 | 連線 |
-| 评论 | 留言 | 照片 | 相片 |
-
-### 不翻译的术语
-
-- 品牌名: Claude, GitHub, Slack, Google, Notion, Linear, Microsoft, Stripe, Canva, Cowork 等
-- 技术术语: API, URL, SSH, SCIM, SSO, CLI, PR, MCP, Webhook, Issue, token
-- 文件名/路径: .claude, metadata.xml, SKILL.md 等
-- ICU 语法: `{count, plural, one {...} other {...}}`
-- HTML 标签: `<code>`, `<link>`, `<terms>`, `<b>` 等
-- 变量插值: `{name}`, `{error}` 等
+简体用大陆术语（文件/设置/服务器），繁体用台湾术语（檔案/設定/伺服器）；品牌名（Claude、GitHub 等）与技术词（API、MCP 等）保持英文；ICU 语法、HTML 标签、变量插值原样保留。
