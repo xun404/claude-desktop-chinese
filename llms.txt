@@ -107,6 +107,29 @@ x1="en-US",S1=["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT",
 
 **注意：** 2026-08 版本（v1.26832.0）起语言白名单已从 `c4b350ac1-*.js` 移入 `shared-1-*.js`（变量名为 `J_`，数组形式不变），apply.py 会依次尝试两个位置。语言显示名称无需补丁（新版用 `Intl.DisplayNames` 自动显示中文名）。
 
+**语言选择机制（2026-08 版）：** 主进程通过 `sn()` 扫描 `Resources/` 目录的 `xx-XX.json` 自动发现语言，初始语言跟随 macOS 系统语言（`cn()` 匹配）。设置面板**没有**独立语言下拉；`J_` 白名单用于 locale 校验（`ey`/`ty`）与 cowork ⋮ 菜单的 Language 子菜单（需 hostInfo.availableLocales）。系统语言为中文时应用自动全中文。
+
+### 7. 网关模型校验（3p/Gateway 模式）
+
+2026-08 版对第三方推理提供商的模型名做厂商白名单校验（黑名单正则含 `glm|deepseek|gpt|qwen|kimi` 等，只认 Claude/anthropic 风格），导致：
+
+- 模型发现（`/v1/models`）结果被过滤，非 Anthropic 模型全部丢弃
+- 配置页出现「看起来不是 Anthropic 模型」告警横幅
+
+如需放行非 Anthropic 模型，将以下三处校验函数改为恒真（本项目已应用）：
+
+| 位置 | 函数 | 补丁 |
+|------|------|------|
+| asar `.vite/build/index.chunk-CJysy3jx.js` | `ce` | `return ae.test(t)?!1:...` → `return !0` |
+| asar `.vite/build/index.pre.js` | `qB` | `return KB.test(t)?!1:...` → `return !0` |
+| ion-dist `assets/v1/cc86060d6-C7JT5_EC.js` | `de` | `return!le.test(t)&&...` → `return!0` |
+
+均为 warn 级校验，恒真后无副作用（企业「允许模型列表」等独立检查不受影响）。
+
+### 8. 重签名后的钥匙链授权
+
+用 ad-hoc 签名（`codesign -s -`）替换 app 后，Electron safeStorage 的钥匙链条目（`"Claude Safe Storage"` / `"Claude Key"`）ACL 与新的代码签名不匹配，每次启动弹「请求钥匙链」且加密配置（Gateway API key 等）无法解密。解决：首次弹窗时点「始终允许」一次即可永久放行（加密数据不受影响）。
+
 ### 6. JS 语言显示名称（index-*.js 文件）
 
 ```
@@ -156,9 +179,7 @@ print(f"Updated {count} keys")
 
 `data/en-US.json` 已保存了当前版本的英文原文。每次更新时都应保存新版 `en-US.json`。
 
-## 翻译质量检查
-
-翻译完成后，应检查以下内容：
+## 翻译质量检查翻译完成后，应检查以下内容：
 
 ### 不应出现的模式
 
