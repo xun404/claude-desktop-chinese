@@ -142,6 +142,12 @@ x1="en-US",S1=["en-US","de-DE","fr-FR","ko-KR","ja-JP","es-419","es-ES","it-IT",
 
 均为 warn 级校验，恒真后无副作用（企业「允许模型列表」等独立检查不受影响）。
 
+### 7b. 思考强度（Effort）对全部模型可见（2026-08 版）
+
+模型的思考强度（Effort/工作量）由本地 edge-api bootstrap 的 `model_selector_config` 驱动，生成函数 `sd()` 中每个模型的 `thinking` 元数据来自 `Hu(id)`——该函数只对内置目录中的 Claude 模型返回 `effort_options`，其余模型返回空 → 非 Claude 模型（deepseek/glm/kimi 等）不显示思考强度。
+
+补丁：asar `.vite/build/index.chunk-w2M3Ll-M.js` 中 `function Hu(e){...if(!n)return;` 改为 `if(!n)n=ju;`（无目录元数据时回退到默认配置 `ju`：low/medium/high/xhigh/max 全部档位 + auto 模式）。修改后模型名与思考强度可在输入框旁同时展示。
+
 ### 8. 重签名后的钥匙链授权
 
 用 ad-hoc 签名（`codesign -s -`）替换 app 后，Electron safeStorage 的钥匙链条目（`"Claude Safe Storage"` / `"Claude Key"`）ACL 与新的代码签名不匹配，每次启动弹「请求钥匙链」且加密配置（Gateway API key 等）无法解密。解决：首次弹窗时点「始终允许」一次即可永久放行（加密数据不受影响）。
