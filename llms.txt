@@ -49,6 +49,16 @@ codesign --force -s - --entitlements scripts/entitlements/main-adhoc.xml "/tmp/C
 
 **注意：** ad-hoc 签名不能带 `com.apple.application-identifier`/`com.apple.developer.team-identifier`/`keychain-access-groups`（会导致启动失败，launchd 错误 163），`main-adhoc.xml` 已移除这三项；若用开发者证书签名则可补回。签名顺序：先嵌套后主二进制，否则 `codesign --verify` 报 `nested code is modified or invalid`。
 
+**asar integrity fuse（2026-08+ 版本必须处理）：** 新版开启了 `EnableEmbeddedAsarIntegrityValidation` fuse，重打包 `app.asar` 后哈希失配，启动即崩（崩溃日志 `SIGTRAP`，命令行运行报 `FATAL: asar_util.cc] Integrity check failed for asar archive`）。在**重新签名前**必须先关闭该 fuse（修改主二进制，之后重签）：
+
+```bash
+npx --yes @electron/fuses write --app /tmp/Claude_Backup.app EnableEmbeddedAsarIntegrityValidation=off
+# 验证（应为 Disabled）
+npx --yes @electron/fuses read --app /tmp/Claude_Backup.app
+```
+
+关闭后原版官方 `OnlyLoadAppFromAsar` 等其余 fuse 保持不变。此步骤必须在重打 asar 与重签名之间完成，顺序：补丁 asar → 关 fuse → 重签名（含 entitlements）→ 替换安装。
+
 ### 备选策略
 
 如果 SIP 完全阻止替换（即使 root 也无法写入），将补丁后的 app 安装到 `~/Applications/Claude.app`：
@@ -284,14 +294,15 @@ for k, v in cn.items():
    - 动态目录：`ion-dist/i18n/dynamic/`（优先用 `data/ion-dist-dynamic-*.json`）
 5. **JS 语言白名单** — apply.py 自动尝试 `c4b350ac1-*.js` → `shared-1-*.js`（2026-08 版在 `shared-1-*.js` 的 `J_` 数组，必须加 `"zh-CN","zh-TW"`，否则设置中无中文选项）
 6. **模型校验恒真**（如出现「看起来不是 Anthropic 模型」告警或模型发现为空）— 按第 7 节补丁三处（`ce`/`qB`/`de`）
-7. **重新签名（含 entitlements，顺序不能错）** — 按第 5 节流程：
+7. **关闭 asar integrity fuse** — `npx --yes @electron/fuses write --app /tmp/Claude_Backup.app EnableEmbeddedAsarIntegrityValidation=off`（不处理则启动崩溃，见第 5 节）
+8. **重新签名（含 entitlements，顺序不能错）** — 按第 5 节流程：
    - 整体深签 `codesign --force --deep -s -`（在 `/tmp` 下，App Management 限制）
    - 4 个 helper 各用自己的 entitlements（`scripts/entitlements/helper-*.xml`）
    - 主二进制最后签：`codesign --force -s - --entitlements scripts/entitlements/main-adhoc.xml`
    - `codesign --verify --deep --strict` 验证
-8. **替换安装** — 管理员权限：`mv /Applications/Claude.app /tmp/Claude_Original.app && cp -R /tmp/Claude_Backup.app /Applications/Claude.app && chown -R <user> /Applications/Claude.app`
-9. **验证** — 运行翻译质量检查（见上文）；启动应用确认：无钥匙链弹窗、模型发现可用、思考强度档位匹配、语言选择器含简体/繁体
-10. **保存新版 en-US.json** — 保存到 `data/` 目录以备 key 变化时使用（`data/ion-dist-en-US-current.json`）
+9. **替换安装** — 管理员权限：`mv /Applications/Claude.app /tmp/Claude_Original.app && cp -R /tmp/Claude_Backup.app /Applications/Claude.app && chown -R <user> /Applications/Claude.app`
+10. **验证** — 运行翻译质量检查（见上文）；启动应用确认：无钥匙链弹窗、模型发现可用、思考强度档位匹配、语言选择器含简体/繁体
+11. **保存新版 en-US.json** — 保存到 `data/` 目录以备 key 变化时使用（`data/ion-dist-en-US-current.json`）
 
 ## 翻译术语对照表
 
